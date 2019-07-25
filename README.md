@@ -4,9 +4,16 @@ Tracker is a command line utility for creating machine learning (ML) projects us
 
 Underneath Tracker runs our adapted versions of Guild AI and the Cookiecutter templating project.
 
-## Installing
+## Installing Tracker
+
+We recommend that you either use virtualenv or Docker.
 
 ```bash
+# Install Tracker Dependencies
+sudo apt update
+sudo apt install git make
+
+# Install Tracker
 git clone https://github.com/dti-research/tracker
 cd tracker
 pip install -e .
