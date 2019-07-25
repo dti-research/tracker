@@ -22,7 +22,7 @@ def version_msg():
     message = u'Tracker v.%(version)s from {} (Python {})'
     return message.format(location, python_version)
 
-@click.command(context_settings=dict(help_option_names=[u'-h', u'--help']))
+@click.command()
 @click.version_option(__version__, u'-v', u'--version', message=version_msg())
 
 @click.argument(u'test')
