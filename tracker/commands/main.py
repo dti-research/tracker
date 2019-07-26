@@ -15,6 +15,7 @@ from tracker.utils import click_utils
 from .create import create
 from .run import run
 
+
 @click.group(cls=click_utils.Group)
 @click.version_option(
     version=version(),
@@ -22,16 +23,17 @@ from .run import run
     message="%(prog)s %(version)s"
 )
 
-#@click.option(
-#    "--debug", "log_level",
-#    help="Log more information during command.",
-#    flag_value=logging.DEBUG)
+# @click.option(
+#     "--debug", "log_level",
+#     help="Log more information during command.",
+#     flag_value=logging.DEBUG)
 
 @click_utils.use_args
 
 def main(args):
     """Tracker command line interface."""
     # Do noting
+
 
 main.add_command(create)
 main.add_command(run)

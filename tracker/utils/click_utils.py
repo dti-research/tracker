@@ -10,6 +10,7 @@ import click
 import functools
 import re
 
+
 class Args(object):
 
     def __init__(self, **kw):
@@ -23,6 +24,7 @@ class Args(object):
     def as_kw(self):
         return {name: getattr(self, name) for name in self.__names}
 
+
 class Group(click.Group):
 
     def get_command(self, ctx, cmd_name):
@@ -32,6 +34,7 @@ class Group(click.Group):
                 cmd_name = cmd.name
                 break
         return super(Group, self).get_command(ctx, cmd_name)
+
 
 def use_args(fn0):
     def fn(*args, **kw):

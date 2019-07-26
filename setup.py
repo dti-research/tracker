@@ -9,9 +9,6 @@
 import io
 from setuptools import setup
 
-from pkg_resources import Distribution as PkgDist
-from pkg_resources import PathMetadata
-
 from tracker import __version__
 version = __version__
 
@@ -22,23 +19,6 @@ with io.open('README.md', 'r', encoding='utf-8') as readme_file:
 requirements = [
     'click>=7.0'
 ]
-
-#tracker_dist_basename = "tracker.dist-info"
-#
-#def tracker_dist_info():
-#    metadata = PathMetadata(".", tracker_dist_basename)
-#    dist = PkgDist.from_filename(tracker_dist_basename, metadata)
-#    assert dist.project_name == "tracker", dist
-#    entry_points = {
-#        group: [str(ep) for ep in eps.values()]
-#        for group, eps in dist.get_entry_map().items()
-#    }
-#    return dist._parsed_pkg_info, entry_points
-#
-##def tracker_packages():
-##    return find_packages(exclude=["tracker.tests", "tracker.tests.*"])
-#
-#PKG_INFO, ENTRY_POINTS = tracker_dist_info()
 
 setup(
     name='tracker',
@@ -54,7 +34,6 @@ setup(
         'tracker',
     ],
     package_dir={'tracker': 'tracker'},
-    #entry_points=ENTRY_POINTS,
     entry_points={
         'console_scripts': [
             'tracker = tracker.main:main',

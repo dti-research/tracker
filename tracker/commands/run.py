@@ -14,8 +14,8 @@ import click
 
 from tracker.utils import click_utils
 
+
 @click.command("run")
-#@click.argument("name")
 
 @click.pass_context
 @click_utils.use_args

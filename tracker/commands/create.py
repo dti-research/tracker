@@ -14,6 +14,7 @@ import click
 
 from tracker.utils import click_utils
 
+
 @click.command("create")
 @click.argument("name")
 

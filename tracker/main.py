@@ -8,5 +8,6 @@
 
 from tracker.commands import main as main_commands
 
+
 def main():
     main_commands.main()
