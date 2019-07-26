@@ -9,3 +9,6 @@
 """Main package for tracker."""
 
 __version__ = '0.1.0a0'
+
+def version():
+    return __version__

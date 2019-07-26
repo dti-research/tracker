@@ -6,13 +6,7 @@
 
 # -*- coding: utf-8 -*-
 
-"""
-Main entry point for the `tracker` command.
-"""
+from tracker.commands import main as main_commands
 
-import os
-
-
-def tracker(test):
-    os.system("cat {}".format(test))
-    print(test)
+def main():
+    main_commands.main()
