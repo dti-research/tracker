@@ -12,6 +12,7 @@ Main entry point for the `tracker` command.
 
 import os
 
+
 def tracker(test):
     os.system("cat {}".format(test))
     print(test)

@@ -15,6 +15,7 @@ import click
 from tracker import __version__
 from tracker.main import tracker
 
+
 def version_msg():
     """Return the Tracker version, location and Python powering it."""
     python_version = sys.version[:3]
@@ -22,13 +23,13 @@ def version_msg():
     message = u'Tracker v.%(version)s from {} (Python {})'
     return message.format(location, python_version)
 
+
 @click.command()
 @click.version_option(__version__, u'-v', u'--version', message=version_msg())
-
 @click.argument(u'test')
-
 def main(test):
     tracker(test)
+
 
 if __name__ == "__main__":
     main()
