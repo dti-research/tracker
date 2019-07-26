@@ -53,7 +53,8 @@ VERSION ?= $(shell python3 -c 'import tracker; print(tracker.__version__)')
 .PHONY: tag
 tag:
 	@echo "+ $@ $(VERSION)"
-	@git tag -a -f $(VERSION) -m 'version $(VERSION)'
+	@git tag -a -f $(VERSION) -m 'Version $(VERSION)'
+	@git push --tags
 
 # Package and upload release to PyPi
 .PHONY: release
