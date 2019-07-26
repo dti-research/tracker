@@ -69,3 +69,16 @@ wheel: clean
 	@echo "+ $@"
 	@python3 setup.py bdist_wheel
 	@ls -l dist
+
+# Install package
+.PHONY: install
+install: clean
+	@echo "+ $@"
+	@pip3 install -e .
+
+# Validating local version prior to committing.
+.PHONY: commit-check
+commit-check:
+	make lint
+	#make test
+	@echo "Commit check passed on `python --version 2>&1`"
