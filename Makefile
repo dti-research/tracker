@@ -47,6 +47,14 @@ test:
 build:
 	python3 setup.py build
 
+# Tag
+VERSION ?= $(shell python3 -c 'import tracker; print(tracker.__version__)')
+
+.PHONY: tag
+tag:
+	@echo "+ $@ $(VERSION)"
+	@git tag -a -f $(VERSION) -m 'version $(VERSION)'
+
 # Package and upload release to PyPi
 .PHONY: release
 release: clean
