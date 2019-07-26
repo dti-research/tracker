@@ -11,7 +11,7 @@ import click
 from tracker import version
 from tracker.utils import click_utils
 
-# Import commands
+# Custom click commands
 from .create import create
 from .run import run
 
@@ -32,7 +32,7 @@ from .run import run
 
 def main(args):
     """Tracker command line interface."""
-    # Do noting
+    # Do nothing
 
 
 main.add_command(create)
