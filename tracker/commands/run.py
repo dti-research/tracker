@@ -15,7 +15,18 @@ import click
 from tracker.utils import click_utils
 
 
+def get_dummy_list_of_experiments():
+    return ["test", "senseact", "lol1", "final", "finalfinal"]
+
+
+def get_experiments(ctx, args, incomplete):
+    return [k for k in get_dummy_list_of_experiments() if incomplete in k]
+
+
 @click.command("run")
+@click.argument("experiment", type=click.STRING,
+                autocompletion=get_experiments)
+
 
 @click.pass_context
 @click_utils.use_args
@@ -25,4 +36,4 @@ def run(ctx, args):
     """Running a new experiment
     """
     # DEBUG
-    print("run called")
+    print("Running experiment: {}".format(args.experiment))

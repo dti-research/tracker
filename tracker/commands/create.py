@@ -16,14 +16,14 @@ from tracker.utils import click_utils
 
 
 @click.command("create")
-@click.argument("name")
+@click.argument("name", type=click.STRING)
 
 @click.pass_context
 @click_utils.use_args
 
 
 def create(ctx, args):
-    """Create a new project
+    """Creates a new project
     """
     # DEBUG
     print("create called")
