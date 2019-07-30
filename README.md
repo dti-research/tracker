@@ -17,7 +17,14 @@ sudo apt install git make
 git clone https://github.com/dti-research/tracker
 cd tracker
 pip install -e .
+
+# Enable bash autocompletion for Tracker on boot
+echo ""  >> ~/.bashrc
+echo "# Bash autocompletion for Tracker"  >> ~/.bashrc
+echo 'eval "$(_TRACKER_COMPLETE=source tracker)"'  >> ~/.bashrc
+source ~/.bashrc
 ```
+
 
 ## Creating a new project
 
