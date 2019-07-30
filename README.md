@@ -10,8 +10,10 @@ We recommend that you either use virtualenv or Docker.
 
 ```bash
 # Install Tracker Dependencies
-sudo apt update
-sudo apt install git make
+apt update
+apt install git make python3-pip
+
+pip3 install tox
 
 # Install Tracker
 git clone https://github.com/dti-research/tracker
