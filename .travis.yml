@@ -1,4 +1,7 @@
 language: ruby
 
+install:
+  - tox
+
 script:
   - make test
