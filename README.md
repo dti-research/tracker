@@ -1,32 +1,10 @@
 # Tracker
 
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
+
 Tracker is a command line utility for creating machine learning (ML) projects using a template project structure, and running and tracking experiments. The goal of Tracker is to ease the task of creating reproducible research within ML.
 
 Underneath Tracker runs our adapted versions of Guild AI and the Cookiecutter templating project.
-
-## Installing Tracker
-
-We recommend that you either use virtualenv or Docker.
-
-```bash
-# Install Tracker Dependencies
-apt update
-apt install git make python3-pip
-
-pip3 install tox
-
-# Install Tracker
-git clone https://github.com/dti-research/tracker
-cd tracker
-pip install -e .
-
-# Enable bash autocompletion for Tracker on boot
-echo ""  >> ~/.bashrc
-echo "# Bash autocompletion for Tracker"  >> ~/.bashrc
-echo 'eval "$(_TRACKER_COMPLETE=source tracker)"'  >> ~/.bashrc
-source ~/.bashrc
-```
-
 
 ## Creating a new project
 
@@ -56,3 +34,54 @@ tracker run experiment NAME
 ```
 
 Note that by default, Tracker will prompt you for a commit message and push your changes to the user-specified remote location, subsequently obtaining a commit hash which can be stored and linked to the conducted trial. 
+
+
+## Installing Tracker
+
+We recommend that you either use virtualenv or Docker.
+
+```bash
+# Install Tracker Dependencies
+apt update
+apt install git make python3-pip
+
+pip3 install tox
+
+# Install Tracker
+git clone https://github.com/dti-research/tracker
+cd tracker
+pip install -e .
+
+# Enable bash autocompletion for Tracker on boot
+echo ""  >> ~/.bashrc
+echo "# Bash autocompletion for Tracker"  >> ~/.bashrc
+echo 'eval "$(_TRACKER_COMPLETE=source tracker)"'  >> ~/.bashrc
+source ~/.bashrc
+```
+
+
+### Tests
+
+You can check whether Tracker is installed correctly by running the included tests.
+
+```bash
+cd tracker/
+make test
+```
+
+## Support
+
+Installation problems? Feature requests? General questions?
+* read through examples and API [documentation](./docs)
+* create github issues on the [Tracker project](https://github.com/dti-research/tracker)
+
+## Acknowledgements
+
+This project is developed by the [DTI](https://www.dti.dk/) AI Research Team at Center for Robot Technology. [Nicolai Anton Lynnerup
+](https://github.com/nily-dti) originally developed the CLI.
+
+## Citing Tracker
+
+For the Tracker, please cite Lynnerup et al. (2019).
+
+* Lynnerup, N. A., Hallam, J., Hasle, R. (2019). [TBA](). In *IROS 2019 Workshop on 'Reproducibility of Research Benchmarking and Verification of Autonomous Robotic Systems'*.
