@@ -80,5 +80,5 @@ install: clean
 .PHONY: commit-check
 commit-check:
 	make lint
-	#make test
+	make test
 	@echo "Commit check passed on `python --version 2>&1`"
