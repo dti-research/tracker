@@ -5,6 +5,23 @@ email, or any other method with the owners of this repository before making a ch
 
 Please note we have a code of conduct, please follow it in all your interactions with the project.
 
+## Contribution Requirements
+
+We welcome contributions to Tracker. In the interest of building a community, we require 
+that you, as a contributor to this project, agree to the following:
+
+1. You expressly agree to license your contribution(s) to Tracker to others under the licens
+   found in the LICENSE file in the root directory of this source tree.
+
+2. You acknowledge that you are legally entitled to grant the above license. If your employer 
+   has the intellectual property rights (IPR) for what you create, you represent that your 
+   employer has given you authority to license the Contribution as described above, or that 
+   your employer has waived its rights in the Contribution.
+
+3. You understand that the decision to include the contribution in any project or source code 
+   repository is at the sole discretion of the Danish Technological Institute, and your submission 
+   or pull-request does not guarantee that any Contribution will be included.
+
 ## Pull Request Process
 
 1. Ensure any install or build dependencies are removed before the end of the layer when doing a 
