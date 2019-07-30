@@ -1,7 +1,7 @@
 language: python
 
 install:
-  - tox
+  - pip install tox-travis
 
 script:
   - make test
