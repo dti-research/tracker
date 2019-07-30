@@ -9,10 +9,13 @@
 """ Command to run an experiment
 """
 
-
+import logging
 import click
 
 from tracker.utils import click_utils
+
+
+log = logging.getLogger(__name__)
 
 
 def get_dummy_list_of_experiments():
@@ -35,5 +38,9 @@ def get_experiments(ctx, args, incomplete):
 def run(ctx, args):
     """Running a new experiment
     """
-    # DEBUG
-    print("Running experiment: {}".format(args.experiment))
+    if args.experiment not in get_dummy_list_of_experiments():
+        log.error("Error! '{}' no such experiment exists"
+                  .format(args.experiment))
+        exit(1)
+
+    log.info("Running experiment: {}".format(args.experiment))

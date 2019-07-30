@@ -10,6 +10,7 @@ import click
 
 from tracker import version
 from tracker.utils import click_utils
+from tracker.utils import log
 
 # Custom click commands
 from .create import create
@@ -23,6 +24,16 @@ from .run import run
     message="%(prog)s %(version)s"
 )
 
+@click.option(
+    '--verbose',
+    is_flag=True, help='Print debug information', default=False
+)
+
+@click.option(
+    u'--logfile', type=click.Path(), default=None,
+    help=u'File to be used as a stream for DEBUG logging',
+)
+
 # @click.option(
 #     "--debug", "log_level",
 #     help="Log more information during command.",
@@ -32,7 +43,12 @@ from .run import run
 
 def main(args):
     """Tracker command line interface."""
-    # Do nothing
+
+    # Configure logger
+    log.configure_logger(
+        stream_level='DEBUG' if args.verbose else 'INFO',
+        log_file=args.logfile,
+    )
 
 
 main.add_command(create)
