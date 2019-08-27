@@ -39,7 +39,7 @@ def run(ctx, args):
     """Running a new experiment
     """
     if args.experiment not in get_dummy_list_of_experiments():
-        log.error("Error! '{}' no such experiment exists"
+        log.error("'{}' no such experiment exists"
                   .format(args.experiment))
         exit(1)
 
