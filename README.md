@@ -1,6 +1,9 @@
 # Tracker
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
+![Repo Size](https://img.shields.io/github/repo-size/dti-research/tracker)
+![Build](https://img.shields.io/travis/dti-research/tracker)
+![Git Tag](https://img.shields.io/github/tag-date/dti-research/tracker)
 
 Tracker is a command line utility for creating machine learning (ML) projects using a template project structure, and running and tracking experiments. The goal of Tracker is to ease the task of creating reproducible research within ML.
 
