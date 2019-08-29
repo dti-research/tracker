@@ -44,7 +44,7 @@ Note that by default, Tracker will prompt you for a commit message and push your
 
 If you're struggling, don't worry about it. We've got your back; simply call for `--help` at any level of arguments:
 
-```bash
+```
 $ tracker --help
 Usage: tracker [OPTIONS] COMMAND [ARGS]...
 
@@ -60,7 +60,9 @@ Commands:
   create  Creates a new project based on a CONFIGURATION FILE and pushes it...
   run     Running a new experiment
   [...]
+```
 
+```
 $ tracker create --help
 Usage: tracker create [OPTIONS] CONFIGURATION
 
