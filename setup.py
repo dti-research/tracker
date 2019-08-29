@@ -19,7 +19,8 @@ with io.open('README.md', 'r', encoding='utf-8') as readme_file:
 requirements = [
     'click>=7.0',
     'cookiecutter>=1.4.0',
-    'ruamel.yaml'
+    'ruamel.yaml',
+    'sh'
 ]
 
 setup(
@@ -47,7 +48,7 @@ setup(
     license='BSD',
     zip_safe=False,
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 2 - Planning',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Natural Language :: English',
