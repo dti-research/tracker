@@ -17,10 +17,8 @@ import ruamel.yaml as yaml
 
 from tracker.utils import conf
 from tracker.utils import click_utils
-from tracker.utils import git
 
 from cookiecutter.main import cookiecutter
-#from git import Repo, Commit
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +34,8 @@ log = logging.getLogger(__name__)
 @click_utils.use_args
 
 def create(ctx, args):
-    """Creates a new project
+    """Creates a new project based on a CONFIGURATION FILE and
+       pushes it to the chosen git repository
     """
 
     # Load configuration file
