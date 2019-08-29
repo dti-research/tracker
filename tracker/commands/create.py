@@ -10,15 +10,17 @@
 """
 
 import os
+import sh
 import logging
 import click
 import ruamel.yaml as yaml
 
 from tracker.utils import conf
 from tracker.utils import click_utils
+from tracker.utils import git
 
 from cookiecutter.main import cookiecutter
-from git import Repo, Commit
+#from git import Repo, Commit
 
 log = logging.getLogger(__name__)
 
@@ -57,27 +59,25 @@ def create(ctx, args):
                  extra_context=config_dict['project'], output_dir=output_dir)
 
     # Init git repo locally
-    #repo_name = config_dict['project']['project_name'].lower()
-    #log.info("Initialising git repo '{}'.".format(repo_name))
-    
-    #repo = Repo.init(os.path.join(output_dir,repo_name))
-    #git = repo.git
+    repo_name = config_dict['project']['project_name'].lower()
+    log.info("Initialising git repo '{}'.".format(repo_name))
 
-    # Setup remote
-    
-    #o = repo.remotes.origin
-    #print(repo.remotes)
-    #origin = repo.create_remote('origin', repo.remotes.origin.url)
+    git = sh.git.bake(_cwd=os.path.join(output_dir, repo_name))
+    git.init()
 
+    # Add remote URL
+    git.remote.add.origin(config_dict['project']['repo'])
+    log.debug("git remote -v \n{}".format(git.remote('-v')))
 
-    # Add and commit all files
-    #repo.index.add(repo.untracked_files)
-    #repo.index.commit("initial commit")
+    # DEBUG: Print git status
+    log.debug(git.status())
 
+    # Add all files
+    git.add('-A')
 
-    #log.debug(repo.untracked_files)
-    #print(git.__version__)
-    #log.debug(repo.remotes.origin.url)
+    # DEBUG: Print git status
+    log.debug(git.status())
 
-    # Push to remote
-    #origin.push()
+    # Commit and push
+    git.commit(m='Initial commit')
+    git.push("--set-upstream", "origin", "master")
