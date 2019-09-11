@@ -36,7 +36,7 @@ def get_experiments(ctx, args, incomplete):
 
 
 def run(ctx, args):
-    """Running a new experiment
+    """Runs an experiment
     """
     if args.experiment not in get_dummy_list_of_experiments():
         log.error("'{}' no such experiment exists"
