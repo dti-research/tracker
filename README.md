@@ -76,19 +76,11 @@ Options:
 
 ## Installing Tracker
 
-We recommend that you either use virtualenv or Docker.
+**Please note** that Tracker is not released to pypi yet. See [INSTALL.md](./INSTALL.md) for how to install from source.
 
 ```bash
-# Install Tracker Dependencies
-apt update
-apt install git make python3-pip
-
-pip3 install tox
-
 # Install Tracker
-git clone https://github.com/dti-research/tracker
-cd tracker
-pip install -e .
+pip3 install dti-tracker
 
 # Enable bash autocompletion for Tracker on boot
 echo ""  >> ~/.bashrc
@@ -96,7 +88,6 @@ echo "# Bash autocompletion for Tracker"  >> ~/.bashrc
 echo 'eval "$(_TRACKER_COMPLETE=source tracker)"'  >> ~/.bashrc
 source ~/.bashrc
 ```
-
 
 ### Tests
 
