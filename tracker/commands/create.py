@@ -34,8 +34,8 @@ log = logging.getLogger(__name__)
 @click_utils.use_args
 
 def create(ctx, args):
-    """Creates a new project based on a CONFIGURATION FILE and
-       pushes it to the chosen git repository
+    """Creates a new project based on a CONFIGURATION FILE.
+       Pushes it subsequently to the chosen git repository.
     """
 
     # Load configuration file
