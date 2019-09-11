@@ -16,12 +16,8 @@ version = __version__
 with io.open('README.md', 'r', encoding='utf-8') as readme_file:
     readme = readme_file.read()
 
-requirements = [
-    'click>=7.0',
-    'cookiecutter>=1.4.0',
-    'ruamel.yaml',
-    'sh'
-]
+with io.open('requirements.txt') as requirements_file:
+    requirements = requirements_file.read().splitlines()
 
 setup(
     name='tracker',
@@ -43,7 +39,7 @@ setup(
         ]
     },
     include_package_data=True,
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
+    python_requires='>=3.6.*',
     install_requires=requirements,
     license='BSD',
     zip_safe=False,
