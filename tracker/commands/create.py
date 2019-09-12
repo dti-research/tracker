@@ -57,6 +57,10 @@ def create(ctx, args):
                  overwrite_if_exists=config_dict['overwrite_if_exists'],
                  extra_context=config_dict['project'], output_dir=output_dir)
 
+    # TODO: Check if git attributes are present in the configuration file.
+    # If not, set environment variable and do not assist user in managing
+    # trials..
+
     # Init git repo locally
     repo_name = config_dict['project']['project_name'].lower()
     log.info("Initialising git repo '{}'.".format(repo_name))
