@@ -16,6 +16,7 @@ from tracker.utils import log
 from .create import create
 from .run import run
 from .ls import ls
+from .cd import cd
 
 
 @click.group(cls=click_utils.Group)
@@ -55,3 +56,4 @@ def main(args):
 main.add_command(create)
 main.add_command(run)
 main.add_command(ls)
+main.add_command(cd)

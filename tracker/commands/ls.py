@@ -6,12 +6,15 @@
 
 # -*- coding: utf-8 -*-
 
-""" Command to run an experiment
+""" Command to get a list of current Tracker projects
 """
 
 import os
 import logging
 import click
+
+from tracker.utils import projects
+from tracker.utils import print_lists
 
 log = logging.getLogger(__name__)
 
@@ -31,17 +34,14 @@ def ls(ctx):
 
     log.debug("Searching for environment variables")
 
-    keys = []
+    project_list = projects.get_all()
+            
 
-    for key in os.environ.keys():
-        if key.startswith("TRACKER") and key.endswith("DIR"):
-            keys.append({key: os.environ[key]})
-
-    if len(keys) == 0:
+    if len(project_list) == 0:
         log.info("No Tracker projects found!")
         return 1
     else:
         log.debug("Listing project names and paths")
 
         # TODO: List projects by their names and not env.variables
-        print(keys)
+        print_lists.print_two_coloumn(project_list)
