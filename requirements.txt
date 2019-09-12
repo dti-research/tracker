@@ -2,3 +2,4 @@ Click>=7.0
 cookiecutter>=1.6.0
 ruamel.yaml>=0.16.5
 sh>=1.12.14
+tox
