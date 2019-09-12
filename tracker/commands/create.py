@@ -52,6 +52,11 @@ def create(ctx, args):
         log.warn("Output directory does not exist. Creating it.")
         os.makedirs(output_dir)
 
+    # Set project directory environment variable
+    config_dict["project"]["project_dir"] = \
+        os.path.join(os.path.abspath(output_dir),
+                     config_dict['project']['project_name'].lower())
+
     # Invoke the Cookiecutter project template
     cookiecutter(config_dict['template'], no_input=True,
                  overwrite_if_exists=config_dict['overwrite_if_exists'],
@@ -64,8 +69,8 @@ def create(ctx, args):
 
         # Could we prompt user for repo?
 
-        log.warn("There's no git repository in the configuration file!\
-                  As a result, your experiments will not be linked to git.")
+        log.warn("There's no git repository in the configuration file! "
+                 "As a result, your experiments will not be linked to git.")
     else:
         # Init git repo locally
         repo_name = config_dict['project']['project_name'].lower()

@@ -29,5 +29,9 @@ def load(filepath):
     return config_dict
 
 
+def set_value(dict, key, value):
+    dict[key] = value
+
+
 def get_config_files(ctx, args, incomplete):
     return [k for k in glob.glob('*.yaml') if incomplete in k]
