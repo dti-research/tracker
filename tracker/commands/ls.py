@@ -9,7 +9,6 @@
 """ Command to get a list of current Tracker projects
 """
 
-import os
 import logging
 import click
 
@@ -35,7 +34,6 @@ def ls(ctx):
     log.debug("Searching for environment variables")
 
     project_list = projects.get_all()
-            
 
     if len(project_list) == 0:
         log.info("No Tracker projects found!")
