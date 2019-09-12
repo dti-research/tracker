@@ -57,30 +57,36 @@ def create(ctx, args):
                  overwrite_if_exists=config_dict['overwrite_if_exists'],
                  extra_context=config_dict['project'], output_dir=output_dir)
 
-    # TODO: Check if git attributes are present in the configuration file.
-    # If not, set environment variable and do not assist user in managing
-    # trials..
+    # Check if we should assist user with git management
+    if 'repo' not in config_dict['project']:
+        # TODO: If not, set environment variable and do not assist user in
+        # managing trials..
 
-    # Init git repo locally
-    repo_name = config_dict['project']['project_name'].lower()
-    log.info("Initialising git repo '{}'.".format(repo_name))
+        # Could we prompt user for repo?
 
-    git = sh.git.bake(_cwd=os.path.join(output_dir, repo_name))
-    git.init()
+        log.warn("There's no git repository in the configuration file!\
+                  As a result, your experiments will not be linked to git.")
+    else:
+        # Init git repo locally
+        repo_name = config_dict['project']['project_name'].lower()
+        log.info("Initialising git repo '{}'.".format(repo_name))
 
-    # Add remote URL
-    git.remote.add.origin(config_dict['project']['repo'])
-    log.debug("git remote -v \n{}".format(git.remote('-v')))
+        git = sh.git.bake(_cwd=os.path.join(output_dir, repo_name))
+        git.init()
 
-    # DEBUG: Print git status
-    log.debug(git.status())
+        # Add remote URL
+        git.remote.add.origin(config_dict['project']['repo'])
+        log.debug("git remote -v \n{}".format(git.remote('-v')))
 
-    # Add all files
-    git.add('-A')
+        # DEBUG: Print git status
+        log.debug(git.status())
 
-    # DEBUG: Print git status
-    log.debug(git.status())
+        # Add all files
+        git.add('-A')
 
-    # Commit and push
-    git.commit(m='Initial commit')
-    git.push("--set-upstream", "origin", "master")
+        # DEBUG: Print git status
+        log.debug(git.status())
+
+        # Commit and push
+        git.commit(m='Initial commit')
+        git.push("--set-upstream", "origin", "master")
