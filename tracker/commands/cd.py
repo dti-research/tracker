@@ -35,7 +35,7 @@ def get_project_names(ctx, args, incomplete):
 
 
 def cd(ctx, args):
-    """Change directory into all projects created by Tracker.
+    """Change directory into any project created by Tracker.
        Searches for environment variables starting with
        'TRACKER' and ends with 'DIR' as defined in the
        `.env` file in the root directory of the Tracker
