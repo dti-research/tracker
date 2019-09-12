@@ -15,7 +15,7 @@ def print_two_coloumn(l):
         l.append(" ")
 
     split = len(l) / 2
-    l1 = l[0:split]
+    l1 = l[0: split]
     l2 = l[split:]
     for key, value in zip(l1, l2):
         print("{0:<20s} {1}".format(key, value))
