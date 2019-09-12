@@ -7,8 +7,6 @@
 
 Tracker is a command line utility for creating machine learning (ML) projects using a template project structure, and running and tracking experiments. The goal of Tracker is to ease the task of creating reproducible research within ML. The project is created by ML developers at DTI for ML developers.
 
-Underneath Tracker runs our adapted versions of Guild AI and the Cookiecutter templating project.
-
 ## Using Tracker
 
 ### Creating a new project
@@ -107,7 +105,7 @@ Installation problems? Feature requests? General questions?
 ## Acknowledgements
 
 This project is developed by the [DTI](https://www.dti.dk/) AI Research Team at Center for Robot Technology. [Nicolai Anton Lynnerup
-](https://github.com/nily-dti) originally developed the CLI.
+](https://github.com/nily-dti) originally developed the CLI. The CLI is heavily inspired by [GuildAI](https://github.com/guildai/guildai), customised to our needs.
 
 ## Citing Tracker
 
