@@ -16,8 +16,15 @@ version = __version__
 with io.open('README.md', 'r', encoding='utf-8') as readme_file:
     readme = readme_file.read()
 
-with io.open('requirements.txt') as requirements_file:
-    requirements = requirements_file.read().splitlines()
+#with io.open('requirements.txt') as requirements_file:
+#    requirements = requirements_file.read().splitlines()
+
+requirements = [
+    'click>=7.0',
+    'cookiecutter>=1.4.0',
+    'ruamel.yaml',
+    'sh'
+]
 
 setup(
     name='tracker',
