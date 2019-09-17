@@ -74,7 +74,7 @@ def create(ctx, args):
     else:
         # Init git repo locally
         repo_name = config_dict['project']['project_name'].lower()
-        log.info("Initialising git repo '{}'."
+        log.info("Initialising git repo '{}'. "
                  "This may take a few minutes...".format(repo_name))
 
         git = sh.git.bake(_cwd=os.path.join(output_dir, repo_name))
