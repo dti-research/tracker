@@ -38,9 +38,9 @@ By envoking the command below you'll get an experiment configuration file wherei
 tracker create experiment
 ```
 
-### Running an experiment
+### Running a trial within an experiment
 
-When you're ready to run an experiment, simply run the command below replacing the NAME with your actual experiment's name.
+When you're ready to run a trial, simply run the command below replacing the NAME with your actual experiment's name and a trial will commence.
 
 ```bash
 tracker run experiment NAME
@@ -50,7 +50,7 @@ Note that by default, Tracker will prompt you for a commit message and push your
 
 ### Help is all around
 
-If you're struggling, don't worry about it. We've got your back; simply call for `--help` at any level of arguments:
+If you're struggling, don't worry about it. Tracker got your back; simply call for `--help` at any level of arguments:
 
 ```
 $ tracker --help
