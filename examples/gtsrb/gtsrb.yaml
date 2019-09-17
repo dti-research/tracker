@@ -1,0 +1,18 @@
+# Copyright (c) 2019, Danish Technological Institute.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+template: 'https://github.com/dti-research/ml-template.git'
+overwrite_if_exists: True
+project:
+    project_name: 'GTSRB'
+    repo: 'git@github.com:nily-dti/tracker_gtsrb_example.git'
+    author_name: 'Nicolai Anton Lynnerup'
+    organization: 'Danish Technological Institute (DTI Research)'
+    output_dir: '.'
+    description: 'Testing Tracker on the German Traffic Sign Recognition Benchmark (GTSRB)'
+    open_source_license: 'BSD-3-Clause'
+    linter: 'flake8'
+    python_interpreter: 'python3'
