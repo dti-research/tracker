@@ -106,6 +106,14 @@ cd tracker/
 make test
 ```
 
+## Levels of Abstraction
+
+We acknowledge that using Tracker can seem a bit overwhelming to begin with, so here are a few definitions that will help you get started:
+
+- **Projects:** At the highest level of abstraction lies the *project* which is created by invoking the command: `tracker create CONF_FILE.yaml`. The project will contain all *experiments* and *trials* (definitions below).
+- **Experiments:** At the next level we have *experiments* which denotes specific parameter configurations (or ranges for the automatic hyper-parameter optimisation). An experiment physically consists of a configuration file similar to the one we use to create the project, but instead of containing template URLs, etc. the experiment configuration file contains the specific parameter configuration for the algorithm(s), environment(s), and so on. Experiments are created by invoking `tracker experiments create NAME`.
+- **Trials:** At the lowest level we have *trials* which denotes a single run of a specific experiment. When we're evaluating probabilistic models we need the ability to conduct multiple repetitions (trials) of the same experiment in order to account for the stochasticity of the methods deployed.
+
 ## Support
 
 Installation problems? Feature requests? General questions?
