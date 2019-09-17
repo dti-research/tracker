@@ -21,7 +21,13 @@ tracker create gtsrb.yaml
 
 ![ML Template Git Repo](./../assets/3_git_ml_template_repo.png)
 
-6. Begin coding!
+6. Setup your virtual environment [Optional]
+
+```bash
+virtualenv -p python3 ./venv
+```
+
+7. Begin coding!
 
 ## Setting up the Data Script
 

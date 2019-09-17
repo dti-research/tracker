@@ -11,7 +11,7 @@ project:
     repo: 'git@github.com:nily-dti/tracker_gtsrb_example.git'
     author_name: 'Nicolai Anton Lynnerup'
     organization: 'Danish Technological Institute (DTI Research)'
-    output_dir: '.'
+    output_dir: './../../../testing_templates/'
     description: 'Testing Tracker on the German Traffic Sign Recognition Benchmark (GTSRB)'
     open_source_license: 'BSD-3-Clause'
     linter: 'flake8'
