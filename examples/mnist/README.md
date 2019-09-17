@@ -1,4 +1,4 @@
-# Creating a basic Image Classifier with DTI Tracker
+# Creating an Image Classifier with DTI Tracker
 
 ## Setting up the Project
 
@@ -17,3 +17,16 @@
 ```bash
 tracker create mnist.yaml
 ```
+5. Go back to GitHub and verify that Tracker has pushed the [ML Template](https://github.com/dti-research/ml-template) to your repository.
+
+![ML Template Git Repo](./../assets/3_git_ml_template_repo.png)
+
+6. Begin coding!
+
+## Setting up the Data Script
+
+TBW
+
+## Running and Tracking Experiments
+
+TBW
