@@ -4,6 +4,10 @@
 
 1. Go to GitHub and set up an empty repo [Optional but recommended]
 
+![Create Empty Git Repo](./../assets/1_git_create_repo.png)
+
+![Empty Git Repo](./../assets/2_git_empty_repo.png)
+
 2. Create a YAML file similar to [mnist.yaml](./mnist.yaml)
 
 3. Replace 'repo' key's value with the SSH adress of your empty repo
