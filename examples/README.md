@@ -4,5 +4,5 @@ All examples listed in this folder assumes a working install of Tracker. Please 
 
 ## Table of Contents
 
-- [MNIST](.mnist/)
+- [MNIST](./mnist/)
 - 
