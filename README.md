@@ -13,7 +13,7 @@
                                 
 ```
 
-Tracker is a command line utility for creating machine learning (ML) projects using a template project structure, and running and tracking experiments. The goal of Tracker is to ease the task of creating reproducible research within ML.
+Tracker is a command line utility (CLI) for creating machine learning (ML) *projects* (using a template project structure), creating *experiments*, and running and tracking *trials*. The goal of Tracker is to ease the task of creating reproducible research within ML.
 
 The project is created by ML developers for ML developers.
 
