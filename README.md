@@ -17,6 +17,17 @@ Tracker is a command line utility (CLI) for creating machine learning (ML) *proj
 
 The project is created by ML developers for ML developers.
 
+## What's the Payoff?
+
+- You **know** when you're improving and when you're regressing
+- You can **go back in time** with git hashes linked to each experiment and even trial.
+- You can **analyse** differences across runs to better understand results
+- You can **collaborate** with colleagues as they know the folder structure
+- You can **share** your results with colleagues
+- You can **save** and **backup** trained models
+- You can **automatically optimise** your model 
+- You can make **guarantees** about model performances
+
 ## Using Tracker
 
 ### Creating a new project
