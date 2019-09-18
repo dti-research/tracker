@@ -19,9 +19,7 @@ log = logging.getLogger(__name__)
 
 
 @click.command("create")
-
 @click.argument(u'name', type=click.STRING)
-
 @click.option(
     u'--template_file', type=click.Path(), default=None,
     help=u'File to be used as a template for the experiment configuration',
