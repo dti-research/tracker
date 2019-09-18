@@ -27,6 +27,7 @@ The project is created by ML developers for ML developers.
 - You can **save** and **backup** trained models
 - You can **automatically optimise** your model 
 - You can make **guarantees** about model performances
+- You ensure the **reproducibility** of your work
 
 ## Using Tracker
 
