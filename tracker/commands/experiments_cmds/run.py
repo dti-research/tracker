@@ -28,6 +28,7 @@ def get_experiments(ctx, args, incomplete):
 @click.argument("experiment", type=click.STRING,
                 autocompletion=get_experiments)
 
+# TODO: Add option: --remote
 
 @click.pass_context
 @click_utils.use_args
@@ -43,13 +44,11 @@ def run(ctx, args):
     # TODO: Get experiment parameters!
     # Load configuration file
     config_dict = conf.load(args.experiment)
-    print(config_dict)
+    log.debug(config_dict)
 
     # Prompt user to confirm run parameters
     if _confirm_run():
         cli.out("Running experiment: {}".format(args.experiment))
-    else:
-        cli.out("Terminated")
 
 
 def _confirm_run():

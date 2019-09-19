@@ -17,6 +17,7 @@ from .cd import cd
 from .create import create
 from .experiments import experiments
 from .ls import ls
+from .remotes import remotes
 
 
 @click.group(cls=click_utils.Group)
@@ -57,3 +58,4 @@ main.add_command(cd)
 main.add_command(create)
 main.add_command(experiments)
 main.add_command(ls)
+main.add_command(remotes)
