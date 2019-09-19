@@ -25,7 +25,8 @@ requirements = [
     'click>=7.0',
     'cookiecutter>=1.4.0',
     'ruamel.yaml',
-    'sh'
+    'sh',
+    'nvgpu'
 ]
 
 setup(

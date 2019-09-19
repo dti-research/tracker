@@ -10,9 +10,9 @@
 """
 
 import logging
-import subprocess
 
 import click
+import nvgpu
 
 
 log = logging.getLogger(__name__)
@@ -24,5 +24,4 @@ def list_gpus(ctx):
     """ Lists CUDA Devices
     """
 
-    n = subprocess.check_output(["nvidia-smi", "-L"])
-    print(n)
+    print(nvgpu.gpu_info())
