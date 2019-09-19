@@ -10,4 +10,5 @@ from tracker.commands import main as main_commands
 
 
 def main():
+    # pylint: disable=no-value-for-parameter
     main_commands.main()
