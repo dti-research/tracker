@@ -9,13 +9,12 @@
 """ Command to change directory into Tracker projects
 """
 
-import os
 import logging
+import os
+
 import click
 
-from tracker.utils import click_utils
-from tracker.utils import projects
-
+from tracker.utils import cli, click_utils, projects
 
 log = logging.getLogger(__name__)
 
@@ -48,8 +47,7 @@ def cd(ctx, args):
     project_dir = projects.get_dir(args.project_name)
 
     if not os.path.isdir(project_dir):
-        log.error("No such directory: {}".format(project_dir))
-        return 1
+        cli.error("No such directory: {}".format(project_dir))
     else:
         os.chdir(project_dir)
         os.system("/bin/bash")
