@@ -18,6 +18,8 @@ remotes:
 
 ### SSH Attributes
 
+| Attributes    | Description   |
+| ------------- | ------------- |
 | `host` | Server host name or IP address (required string) |
 | `port` | Server SSH port (number) By default, port 22 is used for SSH connections. |
 | `user` | User used when connecting over SSH (string) By default, the active user name is used for SSH connections. |
