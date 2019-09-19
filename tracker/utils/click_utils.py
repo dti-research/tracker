@@ -40,3 +40,12 @@ def use_args(fn0):
     def fn(*args, **kw):
         return fn0(*(args + (Args(**kw),)))
     return functools.update_wrapper(fn, fn0)
+
+
+def append_params(fn, params):
+    fn.__click_params__ = getattr(fn, "__click_params__", [])
+    for param in reversed(params):
+        if callable(param):
+            param(fn)
+        else:
+            fn.__click_params__.append(param)

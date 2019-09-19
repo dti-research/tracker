@@ -23,18 +23,5 @@ log = logging.getLogger(__name__)
 def list_remotes(ctx):
     """ Lists possible remotes
     """
-    remotes = config.get_user_config().get("remotes", {})
-    if remotes:
-        data = [
-            {
-                "name": name,
-                "type": r.get("type", ""),
-                "host": r.get("host", ""),
-                "desc": r.get("description", ""),
-            }
-            for name, r in sorted(remotes.items())
-        ]
-        cli.table(data, ["name", "type", "host", "desc"])
-    else:
-        cli.error("No remotes specified in {}".format(
-            config.get_user_config_path()))
+    remotes = config.get_remotes()
+    cli.table(remotes, ["name", "type", "host", "desc"])

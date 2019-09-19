@@ -17,7 +17,6 @@ from .remotes_list import list_remotes
 
 
 @click.group(invoke_without_command=True, cls=click_utils.Group)
-
 @click.pass_context
 
 def remotes(ctx, **kw):

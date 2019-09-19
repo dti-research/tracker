@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 
 
 @click.command("create")
-# Path the project configuration file (*.yaml/*.json)
+# Path the project configuration file (*.yaml)
 @click.argument(u'configuration', type=click.STRING,
                 autocompletion=config.get_config_files)
 @click.pass_context

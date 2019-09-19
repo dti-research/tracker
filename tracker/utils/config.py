@@ -15,6 +15,8 @@ import os
 
 import ruamel.yaml as yaml
 
+from tracker.utils import cli
+
 
 log = logging.getLogger(__name__)
 
@@ -82,6 +84,28 @@ def load(filepath):
 
 def get_config_files(ctx, args, incomplete):
     return [k for k in glob.glob('*.yaml') if incomplete in k]
+
+
+def get_remotes():
+    remotes = get_user_config().get("remotes", {})
+    if remotes:
+        data = [
+            {
+                "name": name,
+                "type": r.get("type", ""),
+                "host": r.get("host", ""),
+                "desc": r.get("description", ""),
+            }
+            for name, r in sorted(remotes.items())
+        ]
+        return data
+    else:
+        cli.error("No remotes specified in {}".format(
+            get_user_config_path()))
+
+
+def get_remote_names(ctx, args, incomplete):
+    return [k['name'] for k in get_remotes() if incomplete in k['name']]
 
 
 class _Config():
