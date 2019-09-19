@@ -14,7 +14,7 @@ import logging
 
 import click
 
-from tracker.utils import cli, click_utils, conf
+from tracker.utils import cli, click_utils, config
 
 log = logging.getLogger(__name__)
 
@@ -27,13 +27,9 @@ def get_experiments(ctx, args, incomplete):
 @click.command("run")
 @click.argument("experiment", type=click.STRING,
                 autocompletion=get_experiments)
-
 # TODO: Add option: --remote
-
 @click.pass_context
 @click_utils.use_args
-
-
 def run(ctx, args):
     """Runs an experiment
     """
@@ -43,7 +39,7 @@ def run(ctx, args):
 
     # TODO: Get experiment parameters!
     # Load configuration file
-    config_dict = conf.load(args.experiment)
+    config_dict = config.load(args.experiment)
     log.debug(config_dict)
 
     # Prompt user to confirm run parameters

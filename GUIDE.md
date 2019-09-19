@@ -16,6 +16,13 @@ remotes:
     ...
 ```
 
+### General Attributes
+
+| Attributes    | Description   |
+| ------------- | ------------- |
+| `description` | Description (string) of the server |
+
+
 ### SSH Attributes
 
 | Attributes    | Description   |

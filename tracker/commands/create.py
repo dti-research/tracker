@@ -15,7 +15,7 @@ import logging
 import click
 import ruamel.yaml as yaml
 
-from tracker.utils import conf
+from tracker.utils import config
 from tracker.utils import click_utils
 
 from cookiecutter.main import cookiecutter
@@ -24,22 +24,18 @@ log = logging.getLogger(__name__)
 
 
 @click.command("create")
-
 # Path the project configuration file (*.yaml/*.json)
 @click.argument(u'configuration', type=click.STRING,
-                autocompletion=conf.get_config_files)
-
-
+                autocompletion=config.get_config_files)
 @click.pass_context
 @click_utils.use_args
-
 def create(ctx, args):
     """Creates a new project based on a CONFIGURATION FILE.
        Pushes it subsequently to the chosen git repository.
     """
 
     # Load configuration file
-    config_dict = conf.load(args.configuration)
+    config_dict = config.load(args.configuration)
     log.debug(yaml.dump(config_dict, default_flow_style=False))
 
     # Tell user what we're doing
