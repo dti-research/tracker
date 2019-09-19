@@ -24,11 +24,8 @@ log = logging.getLogger(__name__)
     u'--template_file', type=click.Path(), default=None,
     help=u'File to be used as a template for the experiment configuration',
 )
-
-
 @click.pass_context
 @click_utils.use_args
-
 def create(ctx, args):
     """Creates a new experiment.
     """
