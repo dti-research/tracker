@@ -20,6 +20,7 @@ from tracker.utils import utils
 from .cd import cd
 from .create import create
 from .experiments import experiments
+from .gpus import gpus
 from .ls import ls
 from .remote import remote
 from .remotes import remotes
@@ -87,6 +88,7 @@ def main(args):
 main.add_command(cd)
 main.add_command(create)
 main.add_command(experiments)
+main.add_command(gpus)
 main.add_command(ls)
 main.add_command(remote)
 main.add_command(remotes)

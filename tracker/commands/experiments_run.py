@@ -27,7 +27,16 @@ def get_experiments(ctx, args, incomplete):
 @click.command("run")
 @click.argument("experiment", type=click.STRING,
                 autocompletion=get_experiments)
-# TODO: Add option: --remote
+@click.option("--gpus", metavar="DEVICES",
+              help=("Limit availabe GPUs to DEVICES, a comma separated list "
+                    "of device IDs. By default all GPUs are available. Cannot"
+                    " be used with --no-gpus."))
+@click.option("--no-gpus", is_flag=True,
+              help="Disable GPUs for run. Cannot be used with --gpu.")
+@click.option("-r", "--remote", metavar="REMOTE",
+              help="Run the operation remotely.")
+@click.option("-y", "--yes", is_flag=True,
+              help="Do not prompt before running operation.")
 @click.pass_context
 @click_utils.use_args
 def run(ctx, args):

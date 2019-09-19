@@ -52,3 +52,7 @@ class SSHRemote(remotelib.Remote):
     def start(self):
         raise remotelib.OperationNotSupported(
             "`start` is not supported for ssh remotes")
+
+    def stop(self):
+        raise remotelib.OperationNotSupported(
+            "`stop` is not supported for ssh remotes")
