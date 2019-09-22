@@ -47,7 +47,7 @@ Tracker will prompt you for a version control location (git/svn/ssh/...) where a
 By envoking the command below you'll get an experiment configuration file wherein all parameters for the trial should be placed.
 
 ```bash
-tracker create experiment
+tracker experiments create [OPTIONS] NAME
 ```
 
 ### Running a trial within an experiment
@@ -55,7 +55,7 @@ tracker create experiment
 When you're ready to run a trial, simply run the command below replacing the NAME with your actual experiment's name and a trial will commence.
 
 ```bash
-tracker run experiment NAME
+tracker experiments run [OPTIONS] EXPERIMENT
 ```
 
 Note that by default, Tracker will prompt you for a commit message and push your changes to the user-specified remote location, subsequently obtaining a commit hash which can be stored and linked to the conducted trial. 
