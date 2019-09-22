@@ -67,6 +67,9 @@ class Operation():
         log.debug("initializing run in %s", self._run.path)
 
         self._run.init_skel()
+        # self._init_attrs()
+        # self._copy_sourcecode()
+        # self._init_digests()
 
     def resolve_deps(self):
         assert self._run is not None
