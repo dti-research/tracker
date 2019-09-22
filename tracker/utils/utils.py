@@ -24,6 +24,13 @@ def safe_make_dir(d):
             raise
 
 
+def safe_listdir(path):
+    try:
+        return os.listdir(path)
+    except OSError:
+        return []
+
+
 def get_validated_dir_path(path, abs=False, create=False):
     path = os.path.expanduser(path)
     if abs:
@@ -36,3 +43,28 @@ def get_validated_dir_path(path, abs=False, create=False):
     if not os.path.isdir(path):
         error("'%s' is not a directory" % path)
     return path
+
+
+def find_apply(funs, *args, **kw):
+    for f in funs:
+        result = f(*args)
+        if result is not None:
+            return result
+    return kw.get("default")
+
+
+def try_read(path, default=None, apply=None):
+    try:
+        f = open(path, "r")
+    except IOError as e:
+        if e.errno != errno.ENOENT:
+            raise
+        return default
+    else:
+        out = f.read()
+        if apply:
+            if not isinstance(apply, list):
+                apply = [apply]
+            for f in apply:
+                out = f(out)
+        return out

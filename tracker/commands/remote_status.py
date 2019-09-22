@@ -18,10 +18,7 @@ from tracker.utils import click_utils
 
 @click.command("status")
 @remotelib.remote_arg
-@click.option(
-    "-v", "--verbose",
-    is_flag=True,
-    help="Show more status information.")
+@click_utils.verbose_option
 @click_utils.use_args
 
 def remote_status(args):

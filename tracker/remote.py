@@ -142,10 +142,10 @@ def remote_op(op, prompt, default_resp, args):
 
 
 def remote_arg(fn):
-    """`REMOTE` is the name of a configured remote. Use ``guild remotes``
+    """`REMOTE` is the name of a configured remote. Use ``tracker remotes``
     to list available remotes.
 
-    For information on configuring remotes, see ``guild remotes
+    For information on configuring remotes, see ``tracker remotes
     --help``.
 
     """

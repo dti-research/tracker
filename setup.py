@@ -26,6 +26,7 @@ requirements = [
     'cookiecutter>=1.4.0',
     'ruamel.yaml',
     'sh',
+    'uuid',
     'nvgpu'
 ]
 

@@ -49,3 +49,13 @@ def append_params(fn, params):
             param(fn)
         else:
             fn.__click_params__.append(param)
+
+
+def verbose_option(fn):
+    """ Verbose
+    """
+    append_params(fn, [
+        click.Option(("-v", "--verbose",), is_flag=True,
+                     help="Show more status information.")
+    ])
+    return fn
