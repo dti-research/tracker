@@ -402,7 +402,6 @@ def is_text_file(path, ignore_ext=False):
             try:
                 sample.decode(encoding=detected_encoding["encoding"])
             except TypeError:
-                # pylint: disable=undefined-variable
                 str(sample, encoding=detected_encoding["encoding"])
             decodable_as_unicode = True
         except LookupError:
