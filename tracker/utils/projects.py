@@ -9,28 +9,32 @@
 """ Utility code to locate tracker projects
 """
 
-import os
-
-_prefix = "TRACKER_"
-_suffix = "_DIR"
+from tracker.tracker_file import TrackerFile
 
 
-def get_all():
-    """Searches for Tracker projects by environment variables
-       and returns their names.
+def get_project_names():
+    """Searches for Tracker projects at the Tracker home configuration file
 
     Returns:
-        list -- List of project names
+        <list> -- List of project names
     """
 
-    projects = []
+    trackerfile = TrackerFile()
 
-    for key in os.environ.keys():
-        if key.startswith(_prefix) and key.endswith(_suffix):
-            projects.append(key.replace(_prefix, '').replace(_suffix, ''))
-
-    return projects
+    return [key for (key, value) in trackerfile.get("projects").items()]
 
 
-def get_dir(name):
-    return os.environ[_prefix + name + _suffix]
+def get_project_dirs():
+    trackerfile = TrackerFile()
+
+    data = trackerfile.get_raw_data()
+
+    return [data["projects"][d]["path"] for d in data["projects"]]
+
+
+def get_project_dir_by_name(name):
+    trackerfile = TrackerFile()
+
+    data = trackerfile.get_raw_data()
+
+    return data["projects"][name]["path"]

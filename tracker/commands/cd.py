@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 
 def get_project_names(ctx, args, incomplete):
-    return [k for k in projects.get_all() if incomplete in k]
+    return [k for k in projects.get_project_names() if incomplete in k]
 
 
 @click.command("cd")
@@ -35,16 +35,14 @@ def get_project_names(ctx, args, incomplete):
 
 def cd(ctx, args):
     """Change directory into any project created by Tracker.
-       Searches for environment variables starting with
-       'TRACKER' and ends with 'DIR' as defined in the
-       `.env` file in the root directory of the Tracker
-       project.
+       Lists all projects defined under the `projects` key in the
+       Tracker home configuration file (default placed: ~/.tracker/)
     """
 
-    log.debug("Searching for environment variables")
+    log.debug("Searching for projects")
 
-    # Retrieve project directory by its name specified in environment variables
-    project_dir = projects.get_dir(args.project_name)
+    # Retrieve project directory by its name
+    project_dir = projects.get_project_dir_by_name(args.project_name)
 
     if not os.path.isdir(project_dir):
         cli.error("No such directory: {}".format(project_dir))

@@ -33,7 +33,7 @@ def ls(ctx):
 
     log.debug("Searching for environment variables")
 
-    project_list = projects.get_all()
+    project_list = projects.get_project_names()
 
     if len(project_list) == 0:
         log.info("No Tracker projects found!")

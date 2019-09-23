@@ -12,6 +12,8 @@
 import logging
 import click
 
+from tracker.utils import config
+
 log = logging.getLogger(__name__)
 
 
@@ -21,3 +23,6 @@ def list_experiments(ctx):
     """ Lists project experiments
     """
     log.debug("Listing all project experiments")
+
+    tracker_home = config.get_tracker_home()
+    print(tracker_home)
