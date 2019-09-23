@@ -14,6 +14,7 @@ import click
 from tracker.utils import click_utils
 
 from .experiments_create import create
+from .experiments_list import list_experiments
 from .experiments_run import run
 
 
@@ -24,14 +25,14 @@ def experiments(ctx, **kw):
     If `COMMAND` is omitted, lists experiments. Refer to ``tracker
     experiments list --help`` for more information on the `list` command.
     """
-    # if not ctx.invoked_subcommand:
-    #    ctx.invoke(list_runs, **kw)
-    # else:
-    if _params_specified(kw):
-        # TODO: It'd be nice to move kw over to the subcommand.
-        print(
-            "options cannot be listed before command ('%s')"
-            % ctx.invoked_subcommand)
+    if not ctx.invoked_subcommand:
+        ctx.invoke(list_experiments, **kw)
+    else:
+        if _params_specified(kw):
+            # TODO: It'd be nice to move kw over to the subcommand.
+            print(
+                "options cannot be listed before command ('%s')"
+                % ctx.invoked_subcommand)
 
 
 def _params_specified(kw):
