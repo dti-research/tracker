@@ -6,6 +6,9 @@
 
 # -*- coding: utf-8 -*-
 
+""" Helper class for trials (named run in command)
+"""
+
 import os
 import uuid
 

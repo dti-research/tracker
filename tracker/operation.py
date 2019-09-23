@@ -13,6 +13,7 @@ import subprocess
 from tracker import run
 from tracker.utils import timestamp
 from tracker.utils import path as pathlib
+from tracker.utils import file as filelib
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +41,7 @@ class Operation():
         self._exit_status = None
 
     def run(self):
-        log.debug("tracker.Operation.run()")
+        # log.debug("tracker.Operation.run()")
         self._init_run(self._run_dir)
 
         # Start the process
@@ -50,12 +51,10 @@ class Operation():
             self.resolve_deps()
             return self.proc()
         finally:
-            print("finally")
+            log.debug("finally")
             # self._cleanup()
 
     def _init_run(self, path):
-        log.debug("tracker.Operation._init_run()")
-
         if not path:
             run_id = run.mkid()
             path = os.path.join(pathlib.runs_dir(), run_id)
@@ -64,16 +63,15 @@ class Operation():
 
         self._run = run.Run(run_id, path)
 
-        log.debug("initializing run in %s", self._run.path)
+        log.debug("Initializing run in %s", self._run.path)
 
         self._run.init_skel()
         # self._init_attrs()
-        # self._copy_sourcecode()
+        self._copy_sourcecode()
         # self._init_digests()
 
     def resolve_deps(self):
         assert self._run is not None
-        log.debug("tracker.Operation.resolve_deps()")
         # TODO
 
     def proc(self):
@@ -87,6 +85,30 @@ class Operation():
 
     def _foreground_proc(self):
         log.debug("tracker.Operation._foreground_proc()")
+
+        # DEBUG: Now everything is fine :-)
+        return 0
+        # return self._exit_status
+
+    def _copy_sourcecode(self):
+        assert self._run is not None
+
+        log.debug("Copying source code files for run {}".format(self._run.id))
+
+        # Select files to copy
+        dest = self._run.tracker_path("sourcecode")
+
+        # TODO: Get root of source code from somewhere else!
+        root = '/home/nily/Workspace/ml-template-ws/testing_templates/gtsrb'
+
+        rules = (
+            filelib.base_sourcecode_select_rules()
+        )
+        select = filelib.FileSelect(root, rules)
+
+        # Copy the files
+        log.debug("Copy from: '{}' to: '{}'".format(root, dest))
+        filelib.copytree(dest, select, root)
 
 
 def _init_cmd_env(gpus):

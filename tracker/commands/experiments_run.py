@@ -22,7 +22,7 @@ from tracker.utils import cli, click_utils, config
 log = logging.getLogger(__name__)
 
 
-def get_experiments(ctx, args, incomplete):
+def get_experiment_files(ctx, args, incomplete):
     return [k for k in glob.glob('**/*.yaml',
                                  recursive=True) if incomplete in k]
 
@@ -51,7 +51,13 @@ def run_params(fn):
             help="Optimize the run using the default optimizer."),
         click.Option(
             ("--random-seed",), metavar="N", type=int,
-            help="Random seed used when sampling trials or flag values."),
+            help=(
+                "Random seed used when sampling trials or flag values. "
+                "If used with --n-trials all trials will be conducted using "
+                "the same seed.")),
+        click.Option(
+            ("-n", "--n-trials"), metavar="N", type=int,
+            help="Number of trials to conduct on the given experiment."),
         click.Option(
             ("-r", "--remote"), metavar="REMOTE",
             help="Run the operation remotely.",
@@ -70,9 +76,8 @@ def run_params(fn):
 
 @click.command("run")
 @click.argument("experiment", type=click.STRING,
-                autocompletion=get_experiments)
+                autocompletion=get_experiment_files)
 @run_params
-@click_utils.verbose_option
 @click.pass_context
 @click_utils.use_args
 
@@ -108,13 +113,13 @@ def _run(args):
 
 
 def _run_remote(op, args):
-    cli.out("Running experiment: {} on {}"
+    cli.out("Conducting experiment: {} on {}"
             .format(args.experiment, args.remote))
     raise NotImplementedError
 
 
 def _run_local(op, args):
-    cli.out("Running experiment: {}"
+    cli.out("Conducting experiment: {}"
             .format(args.experiment))
 
     try:
@@ -125,6 +130,7 @@ def _run_local(op, args):
         cli.error("Run failed: {}".format(e))
     else:
         if returncode != 0:
+            print(returncode)
             cli.error(exit_status=returncode)
 
 
