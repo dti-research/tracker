@@ -44,18 +44,21 @@ def create(ctx, args):
              .format(config_dict['template']))
 
     # Create directory if it does not exist
-    output_dir = config_dict['project']['output_dir']
+    output_dir = os.path.abspath(
+        os.path.expanduser(config_dict['project']['output_dir']))
+
     if not os.path.exists(output_dir):
         log.warn("Output directory does not exist. Creating it.")
         os.makedirs(output_dir)
 
     # Add project to Tracker home configuration file
+    project_name = config_dict['project']['project_name'].replace(" ", "_")
     tracker_file = TrackerFile()
     project_dict = {
-        config_dict['project']['project_name']: {
+        project_name: {
             "path": os.path.join(
-                os.path.abspath(output_dir),
-                config_dict['project']['project_name'].lower())
+                output_dir,
+                project_name.lower())
         }
     }
     tracker_file.add_project(project_dict)

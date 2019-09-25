@@ -12,8 +12,8 @@
 import logging
 import click
 
-from tracker.utils import projects
-from tracker.utils import print_lists
+from tracker.utils import cli
+from tracker.utils import projects as projectslib
 
 log = logging.getLogger(__name__)
 
@@ -25,21 +25,9 @@ log = logging.getLogger(__name__)
 
 def ls(ctx):
     """Lists all projects created by Tracker.
-       Searches for environment variables starting with
-       'TRACKER' and ends with 'DIR' as defined in the
-       `.env` file in the root directory of the Tracker
-       project.
+       Collects all projects defined in the `tracker.yaml`
+       configuration file
     """
 
-    log.debug("Searching for environment variables")
-
-    project_list = projects.get_project_names()
-
-    if len(project_list) == 0:
-        log.info("No Tracker projects found!")
-        return 1
-    else:
-        log.debug("Listing project names and paths")
-
-        # TODO: List projects by their names and not env.variables
-        print_lists.print_two_coloumn(project_list)
+    projects = projectslib.get_project_names_and_dirs()
+    cli.table(projects, ["name", "path"])

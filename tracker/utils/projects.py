@@ -10,6 +10,26 @@
 """
 
 from tracker.tracker_file import TrackerFile
+from tracker.utils import cli
+from tracker.utils import config
+
+
+def get_project_names_and_dirs():
+    trackerfile = TrackerFile()
+    projects = trackerfile.get("projects", {})
+
+    if projects:
+        data = [
+            {
+                "name": name,
+                "path": r.get("path", ""),
+            }
+            for d in projects for name, r in d.items()
+        ]
+        return data
+    else:
+        cli.error("No projects specified in {}".format(
+            config.get_user_config_path()))
 
 
 def get_project_names():
@@ -21,23 +41,16 @@ def get_project_names():
 
     trackerfile = TrackerFile()
 
-    data = trackerfile.get("projects")
+    projects = trackerfile.get("projects", {})
 
     project_names = []
 
-    for d in data:
-        k, _ = list(d.items())[0]
-        project_names.append(k)
+    if projects:
+        for d in projects:
+            k, _ = list(d.items())[0]
+            project_names.append(k)
 
     return project_names
-
-
-def get_project_dirs():
-    trackerfile = TrackerFile()
-
-    data = trackerfile.get_raw_data()
-
-    return [data["projects"][d]["path"] for d in data["projects"]]
 
 
 def get_project_dir_by_name(name):

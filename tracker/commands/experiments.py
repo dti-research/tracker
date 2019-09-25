@@ -40,4 +40,5 @@ def _params_specified(kw):
 
 
 experiments.add_command(create)
+experiments.add_command(list_experiments)
 experiments.add_command(run)
