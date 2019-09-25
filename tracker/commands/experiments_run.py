@@ -86,21 +86,23 @@ def run(ctx, args):
         cli.error("'{}' no such experiment exists"
                   .format(args.experiment))
 
+    # Create operation object
+    #  - Here we scan through the sourcecode
+    #    and extract the (hyper-)parameters
+    op = oplib.Operation(
+        _op_run_dir(args),
+        _op_gpus)
+
     # Prompt user to confirm run parameters
-    if args.yes or _confirm_run():
-        _run(args)
+    if args.yes or _confirm_run(args, op):
+        _run(args, op)
 
 
-def _run(args):
+def _run(args, op):
     # TODO: Get experiment parameters!
     # Load configuration file
     config_dict = config.load(args.experiment)
     log.debug(config_dict)
-
-    # Create operation object
-    op = oplib.Operation(
-        _op_run_dir(args),
-        _op_gpus)
 
     # Check if we should run remote or local
     if args.remote:
@@ -152,7 +154,7 @@ def _op_gpus(args):
     return None  # use all available (default)
 
 
-def _confirm_run():
+def _confirm_run(args, op):
     # prompt = (
     #     "You are about to {action} {op_desc}{batch_suffix}{remote_suffix}\n"
     #     "{flags}"

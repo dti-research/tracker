@@ -6,12 +6,10 @@
 
 # -*- coding: utf-8 -*-
 
-""" Utility script for handling Git through python
+""" Helper functions for parsing python scripts through AST
 
-    Depends on `sh` package
+    Workflow:
+    - Determine if python should be loaded as module or run as script
+    - python_util.exec_script(path, globals)
+
 """
-
-import logging
-# import sh
-
-log = logging.getLogger(__name__)

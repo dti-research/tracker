@@ -6,14 +6,15 @@
 
 # -*- coding: utf-8 -*-
 
+# import ast
 import logging
 import os
 import subprocess
 
 from tracker import run
-from tracker.utils import timestamp
-from tracker.utils import path as pathlib
 from tracker.utils import file as filelib
+from tracker.utils import path as pathlib
+from tracker.utils import timestamp
 
 log = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ class Operation():
         self._run_dir = run_dir
         # self.resource_config = resource_config or {}
         # self.extra_attrs = extra_attrs
+        self.parameters = _init_parameters()
         self.gpus = gpus
         self._started = None
         self._stopped = None
@@ -115,3 +117,8 @@ def _init_cmd_env(gpus):
     # TODO
     env = "util.safe_osenv()"
     return env
+
+
+def _init_parameters():
+    parameters = {}
+    return parameters
