@@ -6,7 +6,7 @@
 
 # -*- coding: utf-8 -*-
 
-""" Show and manage remotes
+""" Shows remotes
 """
 
 import click
@@ -20,7 +20,7 @@ from .remotes_list import list_remotes
 @click.pass_context
 
 def remotes(ctx, **kw):
-    """Show and manage remotes
+    """Shows remotes.
     If `COMMAND` is omitted, lists remotes. Refer to ``tracker
     remotes list --help`` for more information on the `list` command.
     """
