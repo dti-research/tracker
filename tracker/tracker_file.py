@@ -78,3 +78,13 @@ class TrackerFile():
 
         self._data["projects"].append(project)
         self._write()
+
+    def remove_project(self, project_name):
+        """Removes the project to the global Tracker file
+
+        Arguments:
+            project {<str>} -- project name
+        """
+        self._data["projects"] = [
+            d for d in self._data["projects"] if project_name not in d]
+        self._write()

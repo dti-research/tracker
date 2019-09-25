@@ -63,10 +63,6 @@ def run_params(fn):
             help="Run the operation remotely.",
             autocompletion=config.get_remote_names),
         click.Option(
-            ("-y", "--yes"),
-            help="Do not prompt before running operation.",
-            is_flag=True),
-        click.Option(
             ("-q", "--quiet",),
             help="Do not show output.",
             is_flag=True),
@@ -78,6 +74,7 @@ def run_params(fn):
 @click.argument("experiment", type=click.STRING,
                 autocompletion=get_experiment_files)
 @run_params
+@click_utils.no_prompt_option
 @click.pass_context
 @click_utils.use_args
 

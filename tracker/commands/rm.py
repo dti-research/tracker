@@ -10,10 +10,11 @@
 """
 
 import logging
-import os
+import shutil
 
 import click
 
+from tracker import tracker_file
 from tracker.utils import cli, click_utils, projects
 
 log = logging.getLogger(__name__)
@@ -23,28 +24,43 @@ def get_project_names(ctx, args, incomplete):
     return [k for k in projects.get_project_names() if incomplete in k]
 
 
-@click.command("cd")
+@click.command("rm")
 
 @click.argument(u'project_name', type=click.STRING,
                 autocompletion=get_project_names)
-
+@click_utils.no_prompt_option
 @click.pass_context
 @click_utils.use_args
 
 
-def cd(ctx, args):
+def rm(ctx, args):
     """Change directory into any project created by Tracker.
        Lists all projects defined under the `projects` key in the
        Tracker home configuration file (default placed: ~/.tracker/)
     """
 
-    log.debug("Searching for projects")
+    # Prompt user for deletion of files on disk
+    if args.yes or _confirm_rm(args):
+        _rm_files(args)
 
+    # Remove from global configuration file tracker.yaml
+    trackerfile = tracker_file.TrackerFile()
+    trackerfile.remove_project(args.project_name)
+
+
+def _rm_files(args):
     # Retrieve project directory by its name
     project_dir = projects.get_project_dir_by_name(args.project_name)
 
-    if not os.path.isdir(project_dir):
-        cli.error("No such directory: {}".format(project_dir))
-    else:
-        os.chdir(project_dir)
-        os.system("/bin/bash")
+    # Delete folder
+    shutil.rmtree(project_dir)
+
+
+def _confirm_rm(args):
+    prompt = (
+        "You are about to delete {}. "
+        "Do you want to delete all project files on the disk?"
+        .format(
+            args.project_name)
+    )
+    return cli.confirm(prompt, default=False)

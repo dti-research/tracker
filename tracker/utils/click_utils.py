@@ -59,3 +59,15 @@ def verbose_option(fn):
                      help="Show more status information.")
     ])
     return fn
+
+
+def no_prompt_option(fn):
+    """ No prompt
+    """
+    append_params(fn, [
+        click.Option(
+            ("-y", "--yes"),
+            help="Do not prompt before running operation.",
+            is_flag=True),
+    ])
+    return fn
