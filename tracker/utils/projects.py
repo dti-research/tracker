@@ -21,7 +21,15 @@ def get_project_names():
 
     trackerfile = TrackerFile()
 
-    return [key for (key, value) in trackerfile.get("projects").items()]
+    data = trackerfile.get("projects")
+
+    project_names = []
+
+    for d in data:
+        k, _ = list(d.items())[0]
+        project_names.append(k)
+
+    return project_names
 
 
 def get_project_dirs():
@@ -35,6 +43,11 @@ def get_project_dirs():
 def get_project_dir_by_name(name):
     trackerfile = TrackerFile()
 
-    data = trackerfile.get_raw_data()
+    data = trackerfile.get("projects")
 
-    return data["projects"][name]["path"]
+    for d in data:
+        k, _ = list(d.items())[0]
+        if name in k:
+            path = d[k]["path"]
+
+    return path

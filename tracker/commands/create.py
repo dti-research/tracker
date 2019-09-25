@@ -15,6 +15,7 @@ import logging
 import click
 import ruamel.yaml as yaml
 
+from tracker.tracker_file import TrackerFile
 from tracker.utils import config
 from tracker.utils import click_utils
 
@@ -48,10 +49,16 @@ def create(ctx, args):
         log.warn("Output directory does not exist. Creating it.")
         os.makedirs(output_dir)
 
-    # Set project directory environment variable
-    config_dict["project"]["project_dir"] = \
-        os.path.join(os.path.abspath(output_dir),
-                     config_dict['project']['project_name'].lower())
+    # Add project to Tracker home configuration file
+    tracker_file = TrackerFile()
+    project_dict = {
+        config_dict['project']['project_name']: {
+            "path": os.path.join(
+                os.path.abspath(output_dir),
+                config_dict['project']['project_name'].lower())
+        }
+    }
+    tracker_file.add_project(project_dict)
 
     # Invoke the Cookiecutter project template
     cookiecutter(config_dict['template'], no_input=True,

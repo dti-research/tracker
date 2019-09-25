@@ -73,10 +73,6 @@ def load(filepath):
     Returns:
         config_dict (dict): -
     """
-
-    # TODO: Check if yaml or json
-
-    # Read YAML experiment definition file
     with open(filepath, 'r') as stream:
         config_dict = yaml.load(stream, Loader=yaml.Loader)
     return config_dict
