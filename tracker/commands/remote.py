@@ -22,7 +22,7 @@ from .remote_stop import remote_stop
 @click.group(cls=click_utils.Group)
 
 def remote():
-    """Manage remote status.
+    """Manage remotes (start/stop/status).
     """
 
 

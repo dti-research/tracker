@@ -34,9 +34,10 @@ def get_project_names(ctx, args, incomplete):
 
 
 def rm(ctx, args):
-    """Change directory into any project created by Tracker.
-       Lists all projects defined under the `projects` key in the
-       Tracker home configuration file (default placed: ~/.tracker/)
+    """Remove any project created by Tracker specified by its name.
+       Prompts user for deletion of files on disk and deletes the
+       project under the `projects` key in the Tracker home configuration
+       file (default placed: ~/.tracker/)
     """
 
     # Prompt user for deletion of files on disk

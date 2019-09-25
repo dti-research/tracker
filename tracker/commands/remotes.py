@@ -20,7 +20,7 @@ from .remotes_list import list_remotes
 @click.pass_context
 
 def remotes(ctx, **kw):
-    """Shows remotes.
+    """Shows remotes specified in the project and global Tracker file.
     If `COMMAND` is omitted, lists remotes. Refer to ``tracker
     remotes list --help`` for more information on the `list` command.
     """

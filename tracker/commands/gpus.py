@@ -20,9 +20,9 @@ from .gpus_list import list_gpus
 @click.pass_context
 
 def gpus(ctx, **kw):
-    """Show and manage CUDA GPUs
-    If `COMMAND` is omitted, lists GPUs. Refer to ``tracker
-    gpus list --help`` for more information on the `list` command.
+    """ Show and manage NVIDIA GPUs.
+        If `COMMAND` is omitted, lists GPUs. Refer to ``tracker
+        gpus list --help`` for more information on the `list` command.
     """
     if not ctx.invoked_subcommand:
         ctx.invoke(list_gpus, **kw)
