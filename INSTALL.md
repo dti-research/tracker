@@ -1,5 +1,9 @@
 # Installing Tracker
 
+```bash
+pip3 install dti-tracker
+```
+
 ## From source
 
 We recommend that you either use virtualenv or Docker.
