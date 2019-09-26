@@ -115,6 +115,8 @@ subsequently a `tracker cd PROJ_NAME` to cd into the project directory.
 The command will create an empty configuration file and prompt you for
 operation name (e.g. train, test, evaluate, etc.), script location, seed and
 parameter values (using the values found in the script as default values).
+Expiriment configuration files are by default placed in the `experiments`
+folder within your project.
 
 The resulting experiment configuration file will look similar to:
 
