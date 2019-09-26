@@ -107,7 +107,10 @@ file by invoking:
 tracker experiment create cnn_test
 ```
 
-where `cnn_test` could be any unique identifier for your experiment.
+where `cnn_test` could be any unique identifier for your experiment. Remember
+that you have to be at the root of the project when invoking this command. You
+can always do a `tracker ls` to see the list of Tracker projects and
+subsequently a `tracker cd PROJ_NAME` to cd into the project directory.
 
 The command will create an empty configuration file and prompt you for
 operation name (e.g. train, test, evaluate, etc.), script location, seed and
@@ -125,7 +128,7 @@ The resulting experiment configuration file will look similar to:
       parameters:         # [optional]
         batch_size:
           description: Number of images pr. batch
-          default: 32
+          default: 128
         lr:
           description: Learning rate
           min: 1e-4
@@ -138,11 +141,73 @@ The resulting experiment configuration file will look similar to:
 With a configured experiment, we can conduct (numerous) trials by invoking:
 
 ```bash
-tracker experiment run cnn_test --trials 32
+tracker experiment run cnn_test:train --trials 32
 ```
+
+Let's just run a single trial
+
+```bash
+>>> tracker experiment run cnn_test:train
+You are about to run cnn_test:train 1 time:
+  batch_size: 128
+  dropout: 0.2
+  epochs: 5
+  lr: 0.001
+  lr_decay: 0.0
+Continue? (Y/n)
+```
+
+Press enter to start training.
 
 **Note** that if seed is set to a single value in the experiment configuration
 file, then that same seed will be used across all trials. This feature is
 created so repeatability can be verified. If the seed is *not* set then tracker
 will generate a list (with length equal to amount of trials) of seeds which are
 used, one for each trial.
+
+## View Training Results
+
+A simple yet effective way to visualise your results are to list the trials
+conducted under a certain experiment by:
+
+```bash
+>>> tracker experiment runs cnn_test
+[...]
+```
+
+## Train Again
+
+Let's conduct another trial with a different learning rate.
+
+```bash
+>>> tracker experiment run cnn_test:train lr=0.01
+[...]
+```
+
+## Analyse and Compare Trials
+
+To gain more insight in what our two training processes ended up with we can
+compare them using:
+
+```bash
+tracker experiment runs cnn_test --compare 
+```
+
+As you can see the second time we trained, the model is not performing well.
+Actually it is performing random guessing! *But what did we change?* Sometimes
+a lack of structure or pure enthusiasm leads us to forget what we just did.
+
+Luckily we can see what the differences are between the two trials:
+
+```bash
+>>> tracker experiment runs cnn_test --diff
+--- ~/.tracker/experiments/cnn_test/1ba7220d73ae47729cc3221785f5e7fe/.tracker/attrs/parameters
++++ ~/.tracker/experiments/cnn_test/925f38e44bce11e98af6c85b764bbf34/.tracker/attrs/parameters
+@@ -1,5 +1,5 @@
+ batch_size: 128
+ dropout: 0.2
+ epochs: 5
+-lr: 0.001
++lr: 0.01
+ lr_decay: 0.0
+```
