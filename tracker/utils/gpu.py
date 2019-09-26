@@ -30,6 +30,7 @@ import io
 import subprocess
 import sys
 
+from tracker.utils import cli
 from tracker.utils import utils
 
 
@@ -61,43 +62,16 @@ class GPUPlugin():
         self._stats_cmd = _stats_cmd()
 
     def get_gpu_summary(self):
+        if not self._stats_cmd:
+            cli.error("nvidia-smi not available")
         stats = []
         for raw in self._read_raw_gpu_stats(self._stats_cmd):
             stats.append(self._format_gpu_stats(raw))
         return stats
 
     def _format_gpu_stats(self, raw):
-        return {
-            "count": raw[0],
-            "driver_version": raw[1],
-            "name": raw[2],
-            "index": raw[3],
-            "pci.bus_id": raw[4],
-            "fan.speed": raw[5],
-            "memory.total": raw[6],
-            "memory.used": raw[7],
-            "memory.free": raw[8],
-            "utilization.memory": raw[9],
-            "utilization.gpu": raw[10],
-            "compute_mode": raw[11],
-            "temperature.gpu": raw[12],
-            "power.draw": raw[13],
-            "clocks.max.sm": raw[14],
-        }
-
-    def enabled_for_op(self, _op):
-        if not self._stats_cmd:
-            return False, "nvidia-smi not available"
-        return True, ""
-
-    def read_summary_values(self):
-        return self._gpu_stats(self._stats_cmd) if self._stats_cmd else {}
-
-    def _gpu_stats(self, stats_cmd):
-        stats = {}
-        for raw in self._read_raw_gpu_stats(stats_cmd):
-            stats.update(self._calc_gpu_stats(raw))
-        return stats
+        assert len(raw) == len(STATS)
+        return dict(zip(STATS, raw))
 
     def _read_raw_gpu_stats(self, stats_cmd):
         p = subprocess.Popen(stats_cmd, stdout=subprocess.PIPE)
@@ -106,27 +80,7 @@ class GPUPlugin():
         if result == 0:
             return raw_lines
         else:
-            # self.log.debug("reading GPU stats (smi output: '%s')", raw_lines)
             return []
-
-    @staticmethod
-    def _calc_gpu_stats(raw):
-        # See STATS for list of stat names/indexes
-        index = raw[0]
-        mem_total = _parse_raw(raw[3], _parse_bytes)
-        mem_used = _parse_raw(raw[4], _parse_bytes)
-        vals = [
-            ("fanspeed", _parse_raw(raw[1], _parse_percent)),
-            ("pstate", _parse_raw(raw[2], _parse_pstate)),
-            ("mem_total", mem_total),
-            ("mem_used", mem_used),
-            ("mem_free", mem_total - mem_used),
-            ("mem_util", _parse_raw(raw[6], _parse_percent)),
-            ("util", _parse_raw(raw[5], _parse_percent)),
-            ("temp", _parse_raw(raw[7], _parse_int)),
-            ("powerdraw", _parse_raw(raw[8], _parse_watts))
-        ]
-        return dict([(_gpu_val_key(index, name), val) for name, val in vals])
 
 
 def _stats_cmd():
@@ -146,6 +100,7 @@ def _read_csv_lines(raw_in):
     return list(csv.reader(csv_in))
 
 
+# Everything below is kept for book keeping
 def _parse_raw(raw, parser):
     stripped = raw.strip()
     if stripped == "[Not Supported]":
@@ -176,7 +131,3 @@ def _parse_bytes(val):
 def _parse_watts(val):
     assert val.endswith(" W"), val
     return float(val[0:-2])
-
-
-def _gpu_val_key(index, name):
-    return "sys/gpu%s/%s" % (index, name)
