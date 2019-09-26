@@ -19,6 +19,7 @@ from tracker.utils import utils
 # Custom click commands
 from .cd import cd
 from .create import create
+from .experiment import experiment
 from .experiments import experiments
 from .gpus import gpus
 from .ls import ls
@@ -88,6 +89,7 @@ def main(args):
 
 main.add_command(cd)
 main.add_command(create)
+main.add_command(experiment)
 main.add_command(experiments)
 main.add_command(gpus)
 main.add_command(ls)

@@ -14,6 +14,10 @@ from tracker.utils import cli
 from tracker.utils import config
 
 
+def is_cwd_project(cwd):
+    raise NotImplementedError
+
+
 def get_project_names_and_dirs():
     trackerfile = TrackerFile()
     projects = trackerfile.get("projects", {})

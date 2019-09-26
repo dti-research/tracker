@@ -13,9 +13,7 @@ import click
 
 from tracker.utils import click_utils
 
-from .experiments_create import create
 from .experiments_list import list_experiments
-from .experiments_run import run
 
 
 @click.group(invoke_without_command=True, cls=click_utils.Group)
@@ -39,6 +37,4 @@ def _params_specified(kw):
     return any((kw[key] for key in kw))
 
 
-experiments.add_command(create)
 experiments.add_command(list_experiments)
-experiments.add_command(run)
