@@ -53,12 +53,13 @@ def create(ctx, args):
 
     # Add project to Tracker home configuration file
     project_name = config_dict['project']['project_name'].replace(" ", "_")
+    repo_name = project_name.lower()
     tracker_file = TrackerFile()
     project_dict = {
         project_name: {
             "path": os.path.join(
                 output_dir,
-                project_name.lower())
+                repo_name)
         }
     }
     tracker_file.add_project(project_dict)
@@ -79,7 +80,6 @@ def create(ctx, args):
                  "As a result, your experiments will not be linked to git.")
     else:
         # Init git repo locally
-        repo_name = config_dict['project']['project_name'].lower()
         log.info("Initialising git repo '{}'. "
                  "This may take a few minutes...".format(repo_name))
 
