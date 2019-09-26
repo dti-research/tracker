@@ -27,7 +27,6 @@ requirements = [
     'ruamel.yaml',
     'sh',
     'uuid',
-    'nvgpu'
 ]
 
 setup(

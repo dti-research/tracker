@@ -32,33 +32,65 @@ import sys
 
 from tracker.utils import utils
 
+
 STATS = [
+    "count",
+    "driver_version",
+    "name",
     "index",
+    "pci.bus_id",
     "fan.speed",
-    "pstate",
     "memory.total",
     "memory.used",
-    "utilization.gpu",
+    "memory.free",
     "utilization.memory",
+    "utilization.gpu",
+    "compute_mode",
     "temperature.gpu",
-    "power.draw"
+    "power.draw",
+    "clocks.max.sm",
 ]
+# For all stats run: `nvidia-smi --help-query-gpu`
 
 
 class GPUPlugin():
 
     _stats_cmd = None
 
-    def __init__(self, ep):
-        super(GPUPlugin, self).__init__(ep)
+    def __init__(self):
         self._stats_cmd = _stats_cmd()
+
+    def get_gpu_summary(self):
+        stats = []
+        for raw in self._read_raw_gpu_stats(self._stats_cmd):
+            stats.append(self._format_gpu_stats(raw))
+        return stats
+
+    def _format_gpu_stats(self, raw):
+        return {
+            "count": raw[0],
+            "driver_version": raw[1],
+            "name": raw[2],
+            "index": raw[3],
+            "pci.bus_id": raw[4],
+            "fan.speed": raw[5],
+            "memory.total": raw[6],
+            "memory.used": raw[7],
+            "memory.free": raw[8],
+            "utilization.memory": raw[9],
+            "utilization.gpu": raw[10],
+            "compute_mode": raw[11],
+            "temperature.gpu": raw[12],
+            "power.draw": raw[13],
+            "clocks.max.sm": raw[14],
+        }
 
     def enabled_for_op(self, _op):
         if not self._stats_cmd:
             return False, "nvidia-smi not available"
         return True, ""
 
-    def read_summary_values(self, _step):
+    def read_summary_values(self):
         return self._gpu_stats(self._stats_cmd) if self._stats_cmd else {}
 
     def _gpu_stats(self, stats_cmd):

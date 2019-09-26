@@ -12,7 +12,9 @@
 import logging
 
 import click
-import nvgpu
+
+from tracker.utils import cli
+from tracker.utils import gpu
 
 
 log = logging.getLogger(__name__)
@@ -24,4 +26,26 @@ def list_gpus(ctx):
     """ Lists CUDA Devices
     """
 
-    print(nvgpu.gpu_info())
+    gpu_handler = gpu.GPUPlugin()
+    gpu_stats = gpu_handler.get_gpu_summary()
+
+    cols = [
+        "pci.bus_id",
+        "index",
+        "name",
+        "driver_version",
+        "fan.speed",
+        "memory.total",
+        "memory.used",
+        "memory.free",
+        "utilization.memory",
+        "utilization.gpu",
+        "compute_mode",
+        "temperature.gpu",
+        "power.draw",
+        "clocks.max.sm",
+    ]
+
+    cli.table(gpu_stats,
+              [c for c in cols for g in gpu_stats
+               if "[Not Supported]" not in g[c]])
