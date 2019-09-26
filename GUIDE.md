@@ -12,8 +12,9 @@ create your experiment files manually or invoke
       main: src/train.py
       seed: 42            # [optional]
       parameters:         # [optional]
-        batch_size: 32
+        batch_size:
           description: Number of images pr. batch
+          default: 32
         lr:
           description: Learning rate
           min: 1e-4
