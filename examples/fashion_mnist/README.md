@@ -6,11 +6,10 @@ In this guide, we train an image classifier on the Fashion-MNIST data set.
 
 ## Requirements
 
-If you haven’t already, install and verify [Tracker](./../../INSTALL.md)
+- If you haven’t already, [install and verify Tracker](./../../INSTALL.md)
 before proceeding with this guide.
-
-Go to GitHub (or any other git) and set up an empty repository
-[Optional but recommended].
+- Go to GitHub (or any other git) and set up an empty repository
+[Optional, but recommended].
 
 ## Creating the Project
 
@@ -101,8 +100,8 @@ model.fit(
 ## Creating Experiments
 
 Now comes the time to conduct our first experiment using our small CNN on
-the Fashion MNIST. We start of by creating a experiment configuration file
-by invoking:
+the Fashion-MNIST data set. We start by creating an experiment configuration
+file by invoking:
 
 ```bash
 tracker experiment create cnn_test
