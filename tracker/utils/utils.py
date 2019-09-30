@@ -14,9 +14,13 @@ import os
 import platform
 import subprocess
 
+import six
+
 from .cli import error
 
 PLATFORM = platform.system()
+
+OS_ENVIRON_BLACKLIST = set([])
 
 
 def safe_make_dir(d):
@@ -83,3 +87,33 @@ def which(cmd):
         return None
     else:
         return out.strip().decode("utf-8")
+
+
+def safe_osenv():
+    return {
+        name: val
+        for name, val in os.environ.items()
+        if name not in OS_ENVIRON_BLACKLIST
+    }
+
+
+def check_env(env):
+    for name, val in env.items():
+        if not isinstance(name, six.string_types):
+            raise ValueError("non-string env name %r" % name)
+        if not isinstance(val, six.string_types):
+            raise ValueError("non-string env value for '%s': %r" % (name, val))
+
+
+def kill_process_tree(pid, force=False, timeout=None):
+    import psutil
+    import signal
+    if force:
+        sig = signal.SIGKILL
+    else:
+        sig = signal.SIGTERM
+    root = psutil.Process(pid)
+    procs = [root] + root.children(recursive=True)
+    for proc in procs:
+        proc.send_signal(sig)
+    return psutil.wait_procs(procs, timeout=timeout)

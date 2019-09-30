@@ -6,17 +6,23 @@
 
 # -*- coding: utf-8 -*-
 
-# import ast
 import logging
 import os
 import subprocess
+import time
 
+from tracker import parameters
 from tracker import run
+from tracker.utils import cli
+from tracker.utils import exit_code
 from tracker.utils import file as filelib
 from tracker.utils import path as pathlib
 from tracker.utils import timestamp
+from tracker.utils import utils
 
 log = logging.getLogger(__name__)
+
+PROC_TERM_TIMEOUT_SECONDS = 30
 
 
 class ProcessError(Exception):
@@ -26,21 +32,31 @@ class ProcessError(Exception):
 class Operation():
 
     def __init__(self,
+                 op_def=None,
                  run_dir=None,
                  # resource_config=None,
+                 experiment_config=None,
                  # extra_attrs=None,
-                 gpus=None):
+                 gpus=None,
+                 args_yes=False):
         self.cmd_env = _init_cmd_env(gpus)
         self._run_dir = run_dir
+        self.experiment_config = experiment_config or {}
+        self._op_def = op_def
+        self._op_config = self._get_op_config() or {}
         # self.resource_config = resource_config or {}
         # self.extra_attrs = extra_attrs
-        self.parameters = _init_parameters()
         self.gpus = gpus
+        self.args_yes = args_yes
+        self.parameters = self._init_parameters()
         self._started = None
         self._stopped = None
         self._run = None
         self._proc = None
         self._exit_status = None
+
+    def _get_op_config(self):
+        return self.experiment_config["operations"][self._op_def]
 
     def run(self):
         # log.debug("tracker.Operation.run()")
@@ -86,11 +102,85 @@ class Operation():
             return self._foreground_proc()
 
     def _foreground_proc(self):
-        log.debug("tracker.Operation._foreground_proc()")
+        self._start_proc()
+        self._wait_for_proc()
+        self._finalize_attrs()
+        return self._exit_status
 
-        # DEBUG: Now everything is fine :-)
-        return 0
-        # return self._exit_status
+    def _start_proc(self):
+        assert self._proc is None
+        assert self._run is not None
+
+        log.debug("Starting operation run %s", self._run.id)
+
+        args = ["ls", "-a", "/dev/null"]  # HACK
+        env = self._proc_env()
+        cwd = self._run.path
+
+        try:
+            proc = subprocess.Popen(
+                args,
+                env=env,
+                cwd=cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+        except OSError as e:
+            raise ProcessError(e)
+        else:
+            self._proc = proc
+            _write_proc_lock(self._proc, self._run)
+
+    def _wait_for_proc(self):
+        assert self._proc is not None
+
+        try:
+            proc_exit_status = self._watch_proc()
+        except KeyboardInterrupt:
+            proc_exit_status = self._handle_proc_interrupt()
+        self._exit_status = proc_exit_status
+        self._stopped = timestamp.timestamp()
+        _delete_proc_lock(self._run)
+
+    def _watch_proc(self):
+        assert self._proc is not None
+
+        exit_status = self._proc.wait()
+        return exit_status
+
+    def _handle_proc_interrupt(self):
+        log.info("Operation interrupted - waiting for process to exit")
+        kill_after = time.time() + PROC_TERM_TIMEOUT_SECONDS
+        while time.time() < kill_after:
+            if self._proc.poll() is not None:
+                break
+            time.sleep(1)
+        if self._proc.poll() is None:
+            log.warning("Operation process did not exit - stopping forcefully")
+            utils.kill_process_tree(self._proc.pid, force=True)
+        return exit_code.SIGTERM
+
+    def _finalize_attrs(self):
+        assert self._run is not None
+        assert self._exit_status is not None
+        assert self._stopped is not None
+        if not os.path.exists(self._run.path):
+            log.warning(
+                "run directory has been deleted, unable to finalize")
+            return
+        if not os.path.exists(self._run._tracker_dir):
+            log.warning(
+                "run Tracker directory has been deleted, unable to finalize")
+            return
+        self._run.write_attr("exit_status", self._exit_status)
+        self._run.write_attr("stopped", self._stopped)
+
+    def _proc_env(self):
+        assert self._run is not None
+        env = dict(self.cmd_env)
+        env["RUN_DIR"] = self._run.path
+        env["RUN_ID"] = self._run.id
+        utils.check_env(env)
+        return env
 
     def _copy_sourcecode(self):
         assert self._run is not None
@@ -101,7 +191,7 @@ class Operation():
         dest = self._run.tracker_path("sourcecode")
 
         # TODO: Get root of source code from somewhere else!
-        root = '/home/nily/Workspace/ml-template-ws/testing_templates/gtsrb'
+        root = '/home/nily/Desktop/ast_test'
 
         rules = (
             filelib.base_sourcecode_select_rules()
@@ -112,13 +202,80 @@ class Operation():
         log.debug("Copy from: '{}' to: '{}'".format(root, dest))
         filelib.copytree(dest, select, root)
 
+    def _init_parameters(self):
+        main_entry = self._op_config.get("main")
+
+        if main_entry:
+            # TODO!
+            root = '/home/nily/Desktop/ast_test'
+
+            source = os.path.join(root, main_entry)
+
+            # Check if user has specified parameters
+            if self._op_config.get("parameters"):
+                config_parameters = _create_parameter_list(
+                    self._op_config.get("parameters"))
+
+                if config_parameters:
+                    # Check if user specified parameter values are the same
+                    # as they've written in the code.
+                    parameters.check_parameters(source,
+                                                config_parameters,
+                                                self.args_yes)
+
+                # Get all parameters from source
+                source_parameters = parameters.get_parameters_from_source(
+                    source)
+
+                # Merge the two lists and return
+                # (overwriting sourcecode defaults)
+                return {x["key"]: x for x in
+                        source_parameters + config_parameters}.values()
+            else:
+                # Return parameters from source code
+                return parameters.get_parameters_from_source(source)
+        else:
+            cli.error("No 'main' key is defined for operation: '{}'"
+                      .format(self._op_def))
+
 
 def _init_cmd_env(gpus):
-    # TODO
-    env = "util.safe_osenv()"
+    env = utils.safe_osenv()
+    env["LOG_LEVEL"] = _log_level()
+    env["CMD_DIR"] = os.getcwd()
+    if gpus is not None:
+        log.info(
+            "Limiting available GPUs (CUDA_VISIBLE_DEVICES) to: %s",
+            gpus or "<none>")
+        env["CUDA_VISIBLE_DEVICES"] = gpus
     return env
 
 
-def _init_parameters():
-    parameters = {}
-    return parameters
+def _log_level():
+    try:
+        return os.environ["LOG_LEVEL"]
+    except KeyError:
+        return str(logging.getLogger().getEffectiveLevel())
+
+
+def _create_parameter_list(config_parameters):
+    return [{
+        "key": p,
+        "value": config_parameters[p].get("default")
+    } for p in config_parameters if config_parameters[p].get("default")]
+
+
+""" Mutex for process control
+"""
+
+
+def _write_proc_lock(proc, run):
+    with open(run.tracker_path("LOCK"), "w") as f:
+        f.write(str(proc.pid))
+
+
+def _delete_proc_lock(run):
+    try:
+        os.remove(run.tracker_path("LOCK"))
+    except OSError:
+        pass

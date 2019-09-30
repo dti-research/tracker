@@ -22,6 +22,15 @@ from tracker.utils import cli, click_utils, config
 log = logging.getLogger(__name__)
 
 
+def _get_experiment_names():
+    project_config = config.get_project_config()
+    return project_config["experiments"]
+
+
+def get_experiment_names(ctx, args, incomplete):
+    return [k for k in _get_experiment_names() if incomplete in k]
+
+
 def get_experiment_files(ctx, args, incomplete):
     return [k for k in glob.glob('**/*.yaml',
                                  recursive=True) if incomplete in k]
@@ -72,7 +81,7 @@ def run_params(fn):
 
 @click.command("run")
 @click.argument("experiment", type=click.STRING,
-                autocompletion=get_experiment_files)
+                autocompletion=get_experiment_names)
 @run_params
 @click_utils.no_prompt_option
 @click.pass_context
@@ -81,17 +90,28 @@ def run_params(fn):
 def run(ctx, args):
     """Runs an experiment
     """
-    # Sanity check
-    if args.experiment not in glob.glob('**/*.yaml', recursive=True):
-        cli.error("'{}' no such experiment exists"
-                  .format(args.experiment))
+    # Safe load of experiment file path
+    try:
+        experiment_config_file = \
+            config.get_project_config()["experiments"].get(args.experiment)
+    except KeyError:
+        print(
+            "No experiments found. Are you sure you're in a Tracker project?")
+
+    # Load configuration file
+    experiment_config = config.load(experiment_config_file)
+
+    # Resolve experiment operation
 
     # Create operation object
     #  - Here we scan through the sourcecode
     #    and extract the (hyper-)parameters
     op = oplib.Operation(
+        _op_def(args),
         _op_run_dir(args),
-        _op_gpus)
+        _get_experiment_dict_by_name(args.experiment, experiment_config),
+        _op_gpus(args),
+        args.yes)
 
     # Prompt user to confirm run parameters
     if args.yes or _confirm_run(args, op):
@@ -99,11 +119,6 @@ def run(ctx, args):
 
 
 def _run(args, op):
-    # TODO: Get experiment parameters!
-    # Load configuration file
-    config_dict = config.load(args.experiment)
-    log.debug(config_dict)
-
     # Check if we should run remote or local
     if args.remote:
         _run_remote(op, args)
@@ -128,9 +143,13 @@ def _run_local(op, args):
     except oplib.ProcessError as e:
         cli.error("Run failed: {}".format(e))
     else:
+        print("Exited with return code {}".format(returncode))
         if returncode != 0:
-            print(returncode)
             cli.error(exit_status=returncode)
+
+
+def _get_experiment_dict_by_name(name, experiments):
+    return next(x for x in experiments if name in x["experiment"])
 
 
 def _op_run_dir(args):
@@ -154,20 +173,45 @@ def _op_gpus(args):
     return None  # use all available (default)
 
 
+def _op_def(args):
+    # Strip op from args.
+
+    # HACK:
+    return "train"
+
+
+""" Run confirmation prompt
+"""
+
+
 def _confirm_run(args, op):
-    # prompt = (
-    #     "You are about to {action} {op_desc}{batch_suffix}{remote_suffix}\n"
-    #     "{flags}"
-    #     "{resources}"
-    #     "Continue?"
-    #     .format(
-    #         action=_action_desc(args),
-    #         op_desc=_op_desc(op),
-    #         batch_suffix=_batch_suffix(op, args),
-    #         remote_suffix=_remote_suffix(args),
-    #         flags=_format_op_flags(op),
-    #         resources=_format_op_resources(op.resource_config)))
     prompt = (
-        "You are about to run XXX. "
-        "Continue?")
+        "You are about to run {experiment}{op_def}{remote_suffix}\n"
+        "{parameters}"
+        "Continue?"
+        .format(
+            experiment=args.experiment,
+            op_def=_format_operation(args),
+            remote_suffix=_format_remote_suffix(args),
+            parameters=_format_parameters(op.parameters)
+        ))
     return cli.confirm(prompt, default=True)
+
+
+def _format_operation(args):
+    return ":{}".format(_op_def(args))
+
+
+def _format_parameters(parameters):
+    return "\n".join([
+        "   {}: {}".format(
+            p.get("key"),
+            p.get("value"))
+        for p in sorted(parameters, key=lambda k: k['key'])
+    ]) + "\n"
+
+
+def _format_remote_suffix(args):
+    if args.remote:
+        return " on %s" % args.remote
+    return ""

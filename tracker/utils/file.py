@@ -306,14 +306,14 @@ def copytree(
     #     return
     for root, dirs, files in os.walk(src, followlinks=followlinks):
         dirs.sort()
-        print(dirs)
+        # print(dirs)
         relroot = _relpath(root, src)
         select.prune_dirs(src, relroot, dirs)
         for name in sorted(files):
             relpath = os.path.join(relroot, name)
             selected, results = select.select_file(src, relpath)
             if selected:
-                print("COPY: {}".format(name))
+                # print("COPY: {}".format(name))
                 handler.copy(relpath, results)
             else:
                 handler.ignore(relpath, results)

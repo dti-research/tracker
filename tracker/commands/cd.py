@@ -46,5 +46,8 @@ def cd(ctx, args):
     if not os.path.isdir(project_dir):
         cli.error("No such directory: {}".format(project_dir))
     else:
-        os.chdir(project_dir)
-        os.system("/bin/bash")
+        try:
+            os.chdir(project_dir)
+            os.system("/bin/bash")
+        except OSError as e:
+            cli.error(e)

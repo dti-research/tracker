@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 _cwd = None
 _tracker_home = None
 _user_config = None
+_project_config = None
 
 
 def set_cwd(cwd):
@@ -42,6 +43,23 @@ def get_tracker_home():
         _tracker_home
         or os.getenv("TRACKER_HOME")
         or os.path.join(os.path.expanduser("~"), ".tracker"))
+
+
+def get_project_config():
+    path = get_project_config_path()
+    config = _user_config
+    if config is None or config.path != path:
+        config = _Config(path)
+        globals()["_project_config"] = config
+    return config.read()
+
+
+def get_project_config_path():
+    local_project_config = os.path.join(get_cwd(), "tracker.yaml")
+    if os.path.isfile(local_project_config):
+        return local_project_config
+    else:
+        raise KeyError
 
 
 def get_user_config():
