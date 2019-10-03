@@ -55,6 +55,9 @@ class Operation():
         self._proc = None
         self._exit_status = None
 
+    def get_name(self):
+        return self._op_def
+
     def _get_op_config(self):
         return self.experiment_config["operations"][self._op_def]
 

@@ -9,7 +9,6 @@
 """ Command to run an experiment
 """
 
-import glob
 import logging
 import os
 
@@ -29,11 +28,6 @@ def _get_experiment_names():
 
 def get_experiment_names(ctx, args, incomplete):
     return [k for k in _get_experiment_names() if incomplete in k]
-
-
-def get_experiment_files(ctx, args, incomplete):
-    return [k for k in glob.glob('**/*.yaml',
-                                 recursive=True) if incomplete in k]
 
 
 def run_params(fn):
@@ -90,13 +84,17 @@ def run_params(fn):
 def run(ctx, args):
     """Runs an experiment
     """
+    # Strip potential operation from experiment name
+    experiment, op_def = _strip_op_def_from_experiment(args)
+
     # Safe load of experiment file path
     try:
         experiment_config_file = \
-            config.get_project_config()["experiments"].get(args.experiment)
+            config.get_project_config()["experiments"].get(experiment)
     except KeyError:
-        print(
-            "No experiments found. Are you sure you're in a Tracker project?")
+        cli.error(
+            "No experiments found. "
+            "Are you sure you're in a Tracker project?")
 
     # Load configuration file
     experiment_config = config.load(experiment_config_file)
@@ -107,14 +105,14 @@ def run(ctx, args):
     #  - Here we scan through the sourcecode
     #    and extract the (hyper-)parameters
     op = oplib.Operation(
-        _op_def(args),
+        op_def,
         _op_run_dir(args),
-        _get_experiment_dict_by_name(args.experiment, experiment_config),
+        _get_experiment_dict_by_name(experiment, experiment_config),
         _op_gpus(args),
         args.yes)
 
     # Prompt user to confirm run parameters
-    if args.yes or _confirm_run(args, op):
+    if args.yes or _confirm_run(args, experiment, op):
         _run(args, op)
 
 
@@ -143,7 +141,7 @@ def _run_local(op, args):
     except oplib.ProcessError as e:
         cli.error("Run failed: {}".format(e))
     else:
-        print("Exited with return code {}".format(returncode))
+        log.debug("Exited with return code {}".format(returncode))
         if returncode != 0:
             cli.error(exit_status=returncode)
 
@@ -173,33 +171,45 @@ def _op_gpus(args):
     return None  # use all available (default)
 
 
-def _op_def(args):
+def _strip_op_def_from_experiment(args):
     # Strip op from args.
 
-    # HACK:
-    return "train"
+    if ":" in args.experiment:
+        return args.experiment.split(":")
+    else:
+        return args.experiment, "train"  # HACK
+
+    """
+    value = args.experiment.split(":")
+    try:
+        experiment, op_def = value
+    except ValueError: # BUG: This does not catch the exception!
+        return experiment, None
+    else:
+        return experiment, op_def
+    """
 
 
 """ Run confirmation prompt
 """
 
 
-def _confirm_run(args, op):
+def _confirm_run(args, experiment, op):
     prompt = (
         "You are about to run {experiment}{op_def}{remote_suffix}\n"
         "{parameters}"
         "Continue?"
         .format(
-            experiment=args.experiment,
-            op_def=_format_operation(args),
+            experiment=experiment,
+            op_def=_format_operation(op),
             remote_suffix=_format_remote_suffix(args),
             parameters=_format_parameters(op.parameters)
         ))
     return cli.confirm(prompt, default=True)
 
 
-def _format_operation(args):
-    return ":{}".format(_op_def(args))
+def _format_operation(op):
+    return ":{}".format(op.get_name())
 
 
 def _format_parameters(parameters):
