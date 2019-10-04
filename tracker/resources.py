@@ -21,7 +21,8 @@ class ResourceError(Exception):
 
 class Resource():
 
-    def __init__(self, resource, output_dir=None):
+    def __init__(self, name, resource, output_dir=None):
+        self.name = name
         self._resource = resource
         self._output_dir = output_dir
 
@@ -29,12 +30,13 @@ class Resource():
         if self._output_dir is None:
             self._output_dir = self._resource["output"]
 
-        # TODO: Check if select is already present
-
-        # print(self._resource)
+        # TODO: Check if "select" is already present instead of checking for
+        # zip file presence
 
         url = self._resource["url"]
+        select = self._resource["select"]
 
+        source_path = os.path.join(self._output_dir, select)
         zip_file = url.rsplit('/', 1)[-1]
 
         log.debug("Checking if .zip files exists...")
@@ -48,31 +50,22 @@ class Resource():
             # Extract zip file
             extract_zip(zip_file_path, self._output_dir)
 
+        return [source_path]
 
-def resolve(resource_config):
-    resolved = {}
+
+def resolve(requirement, resource_config):
+    resolved = dict()
 
     # Loop through the sources
-    for res in _inline_resource(resource_config.get("sources")):
-        res.resolve()
-
+    for res in _inline_resource(requirement, resource_config.get("sources")):
+        log.debug("Resolving {} resource dependency".format(requirement))
+        resolved_sources = res.resolve()
+        resolved.setdefault(res.name, []).extend(resolved_sources)
     return resolved
-    # resolved = {}
-    # for res in resources(dependencies, ctx):
-    #     log.info("Resolving %s dependency", res.resdef.name)
-    #     resolved_sources = res.resolve()
-    #     log.debug(
-    #         "resolved sources for %s: %r",
-    #         res.dependency, resolved_sources)
-    #     if not resolved_sources:
-    #         log.warning("Nothing resolved for %s dependency",
-    # res.resdef.name)
-    #     resolved.setdefault(res.resdef.name, []).extend(resolved_sources)
-    # return resolved
 
 
-def _inline_resource(resource_config):
-    return [Resource(res) for res in resource_config]
+def _inline_resource(name, resource_config):
+    return [Resource(name, res) for res in resource_config]
 
 
 def download_zip(url, path):

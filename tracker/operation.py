@@ -105,7 +105,8 @@ class Operation():
 
         requires = self._op_config.get("requires")
         # It doesn't matter if it has one or multiple requirements
-        resolved = resources.resolve(self.resource_config.get(requires))
+        resolved = resources.resolve(
+            requires, self.resource_config.get(requires))
         self._run.write_attr("resources", _sort_resolved(resolved))
 
     def proc(self):
