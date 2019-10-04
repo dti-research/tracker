@@ -12,6 +12,7 @@ import subprocess
 import time
 
 from tracker import parameters
+from tracker import resources
 from tracker import run
 from tracker.utils import cli
 from tracker.utils import exit_code
@@ -34,18 +35,15 @@ class Operation():
     def __init__(self,
                  op_def=None,
                  run_dir=None,
-                 # resource_config=None,
                  experiment_config=None,
-                 # extra_attrs=None,
                  gpus=None,
                  args_yes=False):
         self.cmd_env = _init_cmd_env(gpus)
         self._run_dir = run_dir
         self.experiment_config = experiment_config or {}
+        self.resource_config = experiment_config.get("resources")
         self._op_def = op_def
         self._op_config = self._get_op_config() or {}
-        # self.resource_config = resource_config or {}
-        # self.extra_attrs = extra_attrs
         self.gpus = gpus
         self.args_yes = args_yes
         self.parameters = self._init_parameters()
@@ -55,6 +53,10 @@ class Operation():
         self._proc = None
         self._exit_status = None
 
+    @property
+    def run_dir(self):
+        return self._run_dir or (self._run.path if self._run else None)
+
     def get_name(self):
         return self._op_def
 
@@ -62,14 +64,13 @@ class Operation():
         return self.experiment_config["operations"][self._op_def]
 
     def run(self):
-        # log.debug("tracker.Operation.run()")
         self._init_run(self._run_dir)
 
         # Start the process
         self._started = timestamp.timestamp()
         self._run.write_attr("started", self._started)
         try:
-            self.resolve_deps()
+            self.resolve_resources()
             return self.proc()
         finally:
             log.debug("finally")
@@ -86,14 +87,26 @@ class Operation():
 
         log.debug("Initializing run in %s", self._run.path)
 
-        self._run.init_skel()
-        # self._init_attrs()
+        self._run.init_skeleton()
+        self._init_attrs()
         self._copy_sourcecode()
         # self._init_digests()
 
-    def resolve_deps(self):
+    def _init_attrs(self):
         assert self._run is not None
-        # TODO
+
+        self._run.write_attr("opdef", self._op_def)
+        # self._run.write_attr("cmd", self.cmd_args)
+
+    def resolve_resources(self):
+        assert self._run is not None
+        if self._op_config.get("requires") is None:
+            return
+
+        requires = self._op_config.get("requires")
+        # It doesn't matter if it has one or multiple requirements
+        resolved = resources.resolve(self.resource_config.get(requires))
+        self._run.write_attr("resources", _sort_resolved(resolved))
 
     def proc(self):
         try:
@@ -266,6 +279,12 @@ def _create_parameter_list(config_parameters):
         "key": p,
         "value": config_parameters[p].get("default")
     } for p in config_parameters if config_parameters[p].get("default")]
+
+
+def _sort_resolved(resolved):
+    return {
+        name: sorted(files) for name, files in resolved.items()
+    }
 
 
 """ Mutex for process control

@@ -145,7 +145,7 @@ class Run():
     def __repr__(self):
         return "<tracker.run.Run '%s'>" % self.id
 
-    def init_skel(self):
+    def init_skeleton(self):
         utils.utils.safe_make_dir(self.tracker_path("attrs"))
         if not self.has_attr("initialized"):
             self.write_attr("id", self.id)

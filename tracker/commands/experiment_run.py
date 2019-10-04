@@ -14,8 +14,8 @@ import os
 
 import click
 
-from tracker import deps
 from tracker import operation as oplib
+from tracker import resources
 from tracker.utils import cli, click_utils, config
 
 log = logging.getLogger(__name__)
@@ -99,8 +99,6 @@ def run(ctx, args):
     # Load configuration file
     experiment_config = config.load(experiment_config_file)
 
-    # Resolve experiment operation
-
     # Create operation object
     #  - Here we scan through the sourcecode
     #    and extract the (hyper-)parameters
@@ -136,8 +134,9 @@ def _run_local(op, args):
 
     try:
         returncode = op.run()
-    except deps.DependencyError as e:
-        cli.error("Run failed as a dependency was not met: {}".format(e))
+    except resources.ResourceError as e:
+        cli.error(
+            "Run failed as a resource could not be obtained: {}".format(e))
     except oplib.ProcessError as e:
         cli.error("Run failed: {}".format(e))
     else:
