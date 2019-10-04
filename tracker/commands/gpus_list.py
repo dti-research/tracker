@@ -46,6 +46,14 @@ def list_gpus(ctx):
         "clocks.max.sm",
     ]
 
-    cli.table(gpu_stats,
+    heading = {
+        col_name: col_name
+        for col_name in cols for g in gpu_stats
+        if "[Not Supported]" not in g[col_name]
+    }
+
+    data = [heading] + gpu_stats
+
+    cli.table(data,
               [c for c in cols for g in gpu_stats
                if "[Not Supported]" not in g[c]])
