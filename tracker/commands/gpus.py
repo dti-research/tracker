@@ -28,7 +28,6 @@ def gpus(ctx, **kw):
         ctx.invoke(list_gpus, **kw)
     else:
         if _params_specified(kw):
-            # TODO: It'd be nice to move kw over to the subcommand.
             print(
                 "options cannot be listed before command ('%s')"
                 % ctx.invoked_subcommand)

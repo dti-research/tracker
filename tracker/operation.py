@@ -73,8 +73,7 @@ class Operation():
             self.resolve_resources()
             return self.proc()
         finally:
-            log.debug("finally")
-            # self._cleanup()
+            self._cleanup()
 
     def _init_run(self, path):
         if not path:
@@ -90,7 +89,8 @@ class Operation():
         self._run.init_skeleton()
         self._init_attrs()
         self._copy_sourcecode()
-        # self._init_digests()
+        # self._init_sourcecode()
+        self._init_digest()
 
     def _init_attrs(self):
         assert self._run is not None
@@ -130,7 +130,12 @@ class Operation():
 
         log.debug("Starting operation run %s", self._run.id)
 
-        args = ["ls", "-a", "/dev/null"]  # HACK
+        python_exe = "python3"
+        # print(os.path.join(self._run.tracker_path("sourcecode"),
+        # self._op_config.get("main").rsplit('/', 1)[-1]))
+
+        args = [python_exe, "./.tracker/sourcecode/train.py"]  # HACK
+        print(args)
         env = self._proc_env()
         cwd = self._run.path
 
@@ -204,12 +209,13 @@ class Operation():
 
         log.debug("Copying source code files for run {}".format(self._run.id))
 
-        # Select files to copy
+        # Output dir (destination) of the sourcecode
         dest = self._run.tracker_path("sourcecode")
 
-        # TODO: Get root of source code from somewhere else!
-        root = '/home/nily/Desktop/ast_test'
+        # Get root of sourcecode
+        root = os.path.dirname(os.path.abspath(self._op_config.get("main")))
 
+        # Select files to copy
         rules = (
             filelib.base_sourcecode_select_rules()
         )
@@ -223,10 +229,11 @@ class Operation():
         main_entry = self._op_config.get("main")
 
         if main_entry:
-            # TODO!
-            root = '/home/nily/Desktop/ast_test'
-
-            source = os.path.join(root, main_entry)
+            source = os.path.abspath(main_entry)
+            if not os.path.exists(source):
+                cli.error(
+                    "The main entry file: '{}' does not exists!"
+                    .format(source))
 
             # Check if user has specified parameters
             if self._op_config.get("parameters"):
@@ -254,6 +261,14 @@ class Operation():
         else:
             cli.error("No 'main' key is defined for operation: '{}'"
                       .format(self._op_def))
+
+    def _cleanup(self):
+        # TODO
+        assert self._run is not None
+
+    def _init_digest(self):
+        digest = filelib.files_digest(self._run.tracker_path("sourcecode"))
+        self._run.write_attr("sourcecode_digest", digest)
 
 
 def _init_cmd_env(gpus):
