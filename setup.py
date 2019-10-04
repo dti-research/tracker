@@ -27,6 +27,7 @@ requirements = [
     'ruamel.yaml',
     'sh',
     'uuid',
+    'astor>=0.8.0',
 ]
 
 setup(

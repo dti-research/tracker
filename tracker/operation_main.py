@@ -1,7 +1,21 @@
+# Copyright (c) 2019, Danish Technological Institute.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+# -*- coding: utf-8 -*-
+
+""" "External" script to be invoked by tracker.operation.run
+    It is run by: `python3 -um tracker.operation_main {main}`
+"""
+
 import logging
 import os
 import sys
 import warnings
+
+from tracker.utils import python
 
 log = logging.getLogger(__name__)
 
@@ -9,25 +23,18 @@ __argv0 = sys.argv
 
 
 def main():
-
     _init_sys_path()
-    # _init_logging()
     _init_warnings()
-    print("cwd: {}".format(os.getcwd()))
-    print("sys.path:{}".format(os.path.pathsep.join(sys.path)))
-    # arg1, rest_args = _parse_args()
-    # _apply_plugins()
-    # _try_module(arg1, rest_args)
+
+    sourcecode_root = os.path.join(os.getcwd(), ".tracker/sourcecode")
+
+    python.exec_script(os.path.join(sourcecode_root, __argv0[1]))
 
 
 def _init_sys_path():
     if os.getenv("SCRIPT_DIR") is not None:
         print(os.getenv("SCRIPT_DIR"))
         sys.path[0] = os.getenv("SCRIPT_DIR")
-
-# def _init_logging():
-#     level = int(os.getenv("LOG_LEVEL", logging.WARN))
-#     format = os.getenv("LOG_FORMAT", "%(levelname)s: [%(name)s] %(message)s")
 
 
 def _init_warnings():

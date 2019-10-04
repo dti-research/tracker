@@ -142,9 +142,11 @@ def _maybe_change_parameters(root, parameters, yes):
                     if yes \
                        or _confirm_parameter_name(parameter["key"], match):
                         parameter["key"] = match
-                    # else:
-                        # TODO: Delete dict with unknown parameter
-                        # from parameter list
+                    else:
+                        for i in range(len(parameters)):
+                            if parameters[i].get("key") == parameter["key"]:
+                                del parameters[i]
+                                break  # We break as we assume unique matches
 
             if parameter:
                 if parameter["key"] in target:
@@ -195,3 +197,4 @@ def check_parameters(filename, parameters, yes):
     src = open(filename, "r").read()
     tree = ast.parse(src, filename)
     _maybe_change_parameters(tree, parameters, yes)
+    return tree

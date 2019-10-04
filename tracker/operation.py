@@ -12,6 +12,8 @@ import shlex
 import subprocess
 import time
 
+import astor
+
 from tracker import parameters
 from tracker import resources
 from tracker import run
@@ -50,6 +52,7 @@ class Operation():
         self.gpus = gpus
         self.args_yes = args_yes
         self.parameters = self._init_parameters()
+        self._config_parameters = None
         self._started = None
         self._stopped = None
         self._run = None
@@ -242,30 +245,48 @@ class Operation():
 
             # Check if user has specified parameters
             if self._op_config.get("parameters"):
-                config_parameters = _create_parameter_list(
-                    self._op_config.get("parameters"))
-
-                if config_parameters:
-                    # Check if user specified parameter values are the same
-                    # as they've written in the code.
-                    parameters.check_parameters(source,
-                                                config_parameters,
-                                                self.args_yes)
-
                 # Get all parameters from source
                 source_parameters = parameters.get_parameters_from_source(
                     source)
 
+                self._config_parameters = _create_parameter_list(
+                    self._op_config.get("parameters"))
+
+                if self._config_parameters:
+                    # Check if user specified parameter values are the same
+                    # as they've written in the code.
+                    ast_tree = parameters.check_parameters(
+                        source,
+                        self._config_parameters,
+                        self.args_yes)
+
+                    # Write AST tree to source code file
+                    # overwriting the original(!) # BUG
+                    # TODO: Instead of overwriting the source code
+                    # write the ast tree to a temp file and later
+                    # copy that file into the run_dir
+                    self.write_ast_to_source(ast_tree)
+
                 # Merge the two lists and return
                 # (overwriting sourcecode defaults)
                 return {x["key"]: x for x in
-                        source_parameters + config_parameters}.values()
+                        source_parameters + self._config_parameters}.values()
             else:
                 # Return parameters from source code
                 return parameters.get_parameters_from_source(source)
         else:
             cli.error("No 'main' key is defined for operation: '{}'"
                       .format(self._op_def))
+
+    def write_ast_to_source(self, tree):
+        ast_source = astor.to_source(tree)
+
+        main_entry = self._op_config.get("main")
+        source = os.path.abspath(main_entry)
+
+        f = open(source, "w")
+        f.write(ast_source)
+        f.close()
 
     def _cleanup(self):
         # TODO

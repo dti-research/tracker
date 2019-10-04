@@ -7,9 +7,28 @@
 # -*- coding: utf-8 -*-
 
 """ Helper functions for parsing python scripts through AST
-
-    Workflow:
-    - Determine if python should be loaded as module or run as script
-    - python_util.exec_script(path, globals)
-
+    and executing them as python scripts
 """
+
+import ast
+
+
+def exec_script(filename):
+    """Execute a Python script.
+
+    This function can be used to execute a Python module as code
+    rather than import it. Importing a module to execute it is not an
+    option if importing has a side-effect of starting threads, in
+    which case this function can be used.
+
+    Reference:
+
+    https://docs.python.org/2/library/threading.html#importing-in-threaded-code
+
+    """
+    src = open(filename, "r").read()
+    tree = ast.parse(src, filename)
+
+    code = compile(tree, filename, mode="exec")
+
+    exec(code)
