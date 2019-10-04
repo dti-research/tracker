@@ -77,8 +77,8 @@ def _get_assigns(root, assigns):
     class Transformer(ast.NodeTransformer):
         def visit_Assign(self, node):
             if not isinstance(node.value, ast.Num):
-                log.debug("Assign value is not a number. Skipping node {}"
-                          .format(node.targets[0].__dict__))
+                # log.debug("Assign value is not a number. Skipping node {}"
+                #           .format(node.targets[0].__dict__))
                 return node
 
             assigns.append(
@@ -125,9 +125,9 @@ def _maybe_change_parameters(root, parameters, yes):
     class Transformer(ast.NodeTransformer):
         def visit_Assign(self, node):
             if not isinstance(node.value, ast.Num):
-                log.debug(
-                    "Assign value is not a number. Skipping node {}"
-                    .format(node.targets[0].__dict__))
+                # log.debug(
+                #     "Assign value is not a number. Skipping node {}"
+                #     .format(node.targets[0].__dict__))
                 return node
 
             target = node.targets[0].__dict__["id"]

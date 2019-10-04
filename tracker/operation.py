@@ -8,6 +8,7 @@
 
 import logging
 import os
+import shlex
 import subprocess
 import time
 
@@ -24,6 +25,8 @@ from tracker.utils import utils
 log = logging.getLogger(__name__)
 
 PROC_TERM_TIMEOUT_SECONDS = 30
+
+DEFAULT_EXEC = "python3 -um tracker.operation_main {main}"
 
 
 class ProcessError(Exception):
@@ -130,22 +133,24 @@ class Operation():
 
         log.debug("Starting operation run %s", self._run.id)
 
-        python_exe = "python3"
-        # print(os.path.join(self._run.tracker_path("sourcecode"),
-        # self._op_config.get("main").rsplit('/', 1)[-1]))
-
-        args = [python_exe, "./.tracker/sourcecode/train.py"]  # HACK
-        print(args)
+        args = split_cmd(
+            DEFAULT_EXEC.format(
+                main=os.path.basename(self._op_config.get("main"))
+            )
+        )
         env = self._proc_env()
         cwd = self._run.path
+
+        log.debug("Starting new process with: '{}'".format(args))
 
         try:
             proc = subprocess.Popen(
                 args,
                 env=env,
                 cwd=cwd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
+                # stdout=subprocess.PIPE,
+                # stderr=subprocess.PIPE
+            )
         except OSError as e:
             raise ProcessError(e)
         else:
@@ -301,6 +306,23 @@ def _sort_resolved(resolved):
     return {
         name: sorted(files) for name, files in resolved.items()
     }
+
+
+""" Command
+"""
+
+
+def split_cmd(main):
+    if isinstance(main, list):
+        return main
+    return shlex_split(main or "")
+
+
+def shlex_split(s):
+    # If s is None, this call will block (see
+    # https://bugs.python.org/issue27775)
+    s = s or ""
+    return shlex.split(s)
 
 
 """ Mutex for process control

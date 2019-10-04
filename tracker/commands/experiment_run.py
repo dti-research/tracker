@@ -123,14 +123,14 @@ def _run(args, op):
 
 
 def _run_remote(op, args):
-    cli.out("Conducting experiment: {} on {}"
-            .format(args.experiment, args.remote))
+    # cli.out("Conducting experiment: {} on {}"
+    #         .format(args.experiment, args.remote))
     raise NotImplementedError
 
 
 def _run_local(op, args):
-    cli.out("Conducting experiment: {}"
-            .format(args.experiment))
+    # cli.out("Conducting experiment: {}"
+    #         .format(args.experiment))
 
     try:
         returncode = op.run()
