@@ -27,8 +27,9 @@ def main():
     _init_warnings()
 
     sourcecode_root = os.path.join(os.getcwd(), ".tracker/sourcecode")
+    script = os.path.join(sourcecode_root, __argv0[1])
 
-    python.exec_script(os.path.join(sourcecode_root, __argv0[1]))
+    python.exec_script(script)
 
 
 def _init_sys_path():
