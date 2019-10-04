@@ -71,7 +71,7 @@ class GPUPlugin():
 
     def _format_gpu_stats(self, raw):
         assert len(raw) == len(STATS)
-        return dict(zip(STATS, raw))
+        return dict(zip(STATS, [r.strip(" ") for r in raw]))
 
     def _read_raw_gpu_stats(self, stats_cmd):
         p = subprocess.Popen(stats_cmd, stdout=subprocess.PIPE)
