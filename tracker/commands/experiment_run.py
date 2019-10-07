@@ -128,7 +128,7 @@ def _run(args, op):
 
 def _run_remote(op, args):
     remote = remotelib.remote_for_args(args)
-    # print(remote.private_key)
+
     try:
         run_id = remote.run_op(**_run_kw(args))
     except remotelib.RunFailed as e:
@@ -140,14 +140,13 @@ def _run_remote(op, args):
     except remotelib.OperationError as e:
         _handle_remote_op_error(e, remote)
     except remotelib.OperationNotSupported:
-        cli.error("%s does not support this operation" % remote.name)
+        cli.error("{} does not support this operation".format(remote.name))
     else:
         if args.background:
             cli.out(
                 "{run_id} is running remotely on {remote}\n"
                 "To watch use 'tracker watch {run_id} -r {remote}'"
                 .format(run_id=run_id[:8], remote=args.remote))
-    # print(run_id[:8])
 
 
 def _run_local(op, args):

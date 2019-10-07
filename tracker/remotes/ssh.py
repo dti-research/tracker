@@ -8,6 +8,8 @@
 
 import sys
 
+import click
+
 from tracker import remote as remotelib
 from tracker import run as runlib
 from tracker.utils import utils
@@ -62,10 +64,12 @@ class SSHRemote(remotelib.Remote):
 
     def which(self, cmd):
         which_cmd = "where" if utils.PLATFORM == "Windows" else "which"
-        return self._ssh_output(which_cmd + " " + cmd)
-
-    def check_output(self, cmd):
-        return self._ssh_output(cmd)
+        return ssh_util.ssh_output(
+            self.host, [which_cmd + " " + cmd],
+            user=self.user,
+            private_key=self.private_key,
+            connect_timeout=self.connect_timeout,
+            port=self.port)
 
     def create_cmd(self, cmd):
         return ssh_util.get_ssh_cmd(
@@ -82,6 +86,7 @@ class SSHRemote(remotelib.Remote):
         # 'optimize': False, 'optimizer': None, 'random_seed': None}
 
         self._init_run()
+        self._tracker_cmd("ls")
 
         run_id = runlib.mkid()
         return run_id
@@ -108,10 +113,26 @@ class SSHRemote(remotelib.Remote):
             private_key=self.private_key,
             port=self.port)
 
-    def _ssh_output(self, cmd):
-        return ssh_util.ssh_output(
+    def _tracker_cmd(self, name, args=None, env=None):
+        cmd_lines = ["set -e"]
+        # cmd_lines.extend(self._env_activate_cmd_lines())
+        cmd_lines.extend(self._set_columns())
+        # if env:
+        #     cmd_lines.extend(self._cmd_env(env))
+        # cmd_lines.append("tracker %s %s" % (name, " ".join(args)))
+        cmd_lines.append("tracker %s" % (name))
+        cmd = "; ".join(cmd_lines)
+        self._ssh_check_call(cmd)
+
+    def _ssh_check_call(self, cmd):
+        ssh_util.ssh_cmd(
             self.host, [cmd],
             user=self.user,
             private_key=self.private_key,
             connect_timeout=self.connect_timeout,
             port=self.port)
+
+    @staticmethod
+    def _set_columns():
+        w, _h = click.get_terminal_size()
+        return ["export COLUMNS=%i" % w]

@@ -102,6 +102,7 @@ class Operation():
         assert self._run is not None
 
         self._run.write_attr("opdef", self._op_def)
+        self._run.write_attr("parameters", _to_dict(self.parameters))
         # self._run.write_attr("cmd", self.cmd_args)
 
     def resolve_resources(self):
@@ -295,6 +296,10 @@ class Operation():
     def _init_digest(self):
         digest = filelib.files_digest(self._run.tracker_path("sourcecode"))
         self._run.write_attr("sourcecode_digest", digest)
+
+
+def _to_dict(dict_values):
+    return {x["key"]: x["value"] for x in dict_values}
 
 
 def _init_cmd_env(gpus):
