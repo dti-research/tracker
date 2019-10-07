@@ -6,14 +6,6 @@
 [![Documentation Status](https://readthedocs.org/projects/dti-tracker/badge/?version=latest)](https://dti-tracker.readthedocs.io/en/latest/?badge=latest)
 ![Git Tag](https://img.shields.io/github/tag-date/dti-research/tracker)
 
-```
- ______             __          
-/_  __/______ _____/ /_____ ____
- / / / __/ _ `/ __/  '_/ -_) __/
-/_/ /_/  \_,_/\__/_/\_\\__/_/   
-                                
-```
-
 Tracker is a command line utility (CLI) for creating machine learning (ML) *projects* (using a template project structure), creating *experiments*, and running and tracking *trials*. The goal of Tracker is to ease the task of creating reproducible research within ML.
 
 The project is created by ML developers for ML developers.
