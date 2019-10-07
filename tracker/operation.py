@@ -319,8 +319,8 @@ def _log_level():
 def _create_parameter_list(config_parameters):
     return [{
         "key": p,
-        "value": config_parameters[p].get("default")
-    } for p in config_parameters if config_parameters[p].get("default")]
+        "value": config_parameters[p].get("value")
+    } for p in config_parameters if config_parameters[p].get("value")]
 
 
 def _sort_resolved(resolved):
