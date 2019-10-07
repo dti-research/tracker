@@ -24,4 +24,14 @@ def list_remotes(ctx):
     """ Lists possible remotes
     """
     remotes = config.get_remotes()
-    cli.table(remotes, ["name", "type", "host", "desc"])
+
+    cols = ["name", "type", "host", "desc"]
+
+    heading = {
+        col_name: col_name.capitalize()
+        for col_name in cols
+    }
+
+    data = [heading] + remotes
+
+    cli.table(data, cols)
