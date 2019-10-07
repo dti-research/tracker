@@ -34,45 +34,45 @@ def get_experiment_names(ctx, args, incomplete):
 def run_params(fn):
     click_utils.append_params(fn, [
         click.Option(
-            ("--run-dir",), metavar="DIR",
-            help=(
-                "Use alternative run directory DIR.")),
+            ("-b", "--background",), is_flag=True,
+            help="Run operation in background."),
         click.Option(
             ("--gpus",), metavar="DEVICES",
             help=("Limit availabe GPUs to DEVICES, a comma separated list of "
                   "device IDs. By default all GPUs are available. Cannot be"
                   "used with --no-gpus.")),
         click.Option(
-            ("-b", "--background",), is_flag=True,
-            help="Run operation in background."),
-        click.Option(
             ("--no-gpus",), is_flag=True,
             help="Disable GPUs for run. Cannot be used with --gpu."),
         click.Option(
-            ("-o", "--optimizer",), metavar="ALGORITHM",
+            ("--optimizer",), metavar="ALGORITHM",
             help=(
                 "Optimize the run using the specified algorithm. See "
                 "Optimizing Runs for more information.")),
+        # click.Option(
+        #     ("--optimize",), is_flag=True,
+        #     help="Optimize the run using the default optimizer."),
         click.Option(
-            ("-O", "--optimize",), is_flag=True,
-            help="Optimize the run using the default optimizer."),
+            ("-q", "--quiet",),
+            help="Do not show output.",
+            is_flag=True),
         click.Option(
-            ("--random-seed",), metavar="N", type=int,
+            ("--run-dir",), metavar="DIR",
+            help=(
+                "Use alternative run directory DIR.")),
+        click.Option(
+            ("-r", "--remote",), metavar="REMOTE",
+            help="Run the operation remotely.",
+            autocompletion=config.get_remote_names),
+        click.Option(
+            ("--seed",), metavar="N", type=int,
             help=(
                 "Random seed used when sampling trials or flag values. "
                 "If used with --n-trials all trials will be conducted using "
                 "the same seed.")),
         click.Option(
-            ("-n", "--n-trials"), metavar="N", type=int,
+            ("--trials",), metavar="N", type=int, default=1,
             help="Number of trials to conduct on the given experiment."),
-        click.Option(
-            ("-r", "--remote"), metavar="REMOTE",
-            help="Run the operation remotely.",
-            autocompletion=config.get_remote_names),
-        click.Option(
-            ("-q", "--quiet",),
-            help="Do not show output.",
-            is_flag=True),
     ])
     return fn
 
@@ -115,7 +115,10 @@ def run(ctx, args):
 
     # Prompt user to confirm run parameters
     if args.yes or _confirm_run(args, experiment, op):
-        _run(args, op)
+        for n in range(args.trials):
+            cli.out("Trial {}/{}".format(n + 1, args.trials))
+            # Run the trial
+            _run(args, op)
 
 
 def _run(args, op):

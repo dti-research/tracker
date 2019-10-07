@@ -293,8 +293,13 @@ class Operation():
         f.close()
 
     def _cleanup(self):
-        # TODO
         assert self._run is not None
+        self._config_parameters = None
+        self._started = None
+        self._stopped = None
+        self._run = None
+        self._proc = None
+        self._exit_status = None
 
     def _init_digest(self):
         digest = filelib.files_digest(self._run.tracker_path("sourcecode"))
