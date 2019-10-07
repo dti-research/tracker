@@ -135,3 +135,11 @@ This project is developed by the [DTI](https://www.dti.dk/) AI Research Team at 
 For Tracker, please cite Lynnerup et al. (2019).
 
 * Lynnerup, N. A., Hallam, J., Hasle, R. (2019). [Tools for Reproducible Research in Machine Learning](references/IROS_2019___Tools_for_Reproducible_Research.pdf). In *IROS 2019 Workshop on 'Reproducibility of Research Benchmarking and Verification of Autonomous Robotic Systems'*.
+
+# Epilogue
+
+This is the part where I say something thoughtful about how wonderful it is to create reproducible research. And what a wonderful person you are for choosing to follow good experimental practices.
+
+But hey, you made it all the way here, so you already know this stuff.
+
+So if there is something else that you still feel you don’t know, please explore the [documentation](https://dti-tracker.readthedocs.io/en/latest/) and/or get in touch with me.
