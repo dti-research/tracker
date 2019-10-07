@@ -122,7 +122,7 @@ We acknowledge that using Tracker can seem a bit overwhelming to begin with, so 
 ## Support
 
 Installation problems? Feature requests? General questions?
-* read through examples and API [documentation](https://dti-tracker.readthedocs.io/en/latest/)
+* read through examples and API <a href="https://dti-tracker.readthedocs.io/en/latest/" target="_blank">documentation</a>
 * create github issues on the [Tracker project](https://github.com/dti-research/tracker)
 
 ## Acknowledgements
