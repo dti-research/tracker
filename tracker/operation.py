@@ -69,7 +69,7 @@ class Operation():
     def _get_op_config(self):
         return self.experiment_config["operations"][self._op_def]
 
-    def run(self):
+    def run(self, background):
         self._init_run(self._run_dir)
 
         # Start the process
@@ -77,7 +77,7 @@ class Operation():
         self._run.write_attr("started", self._started)
         try:
             self.resolve_resources()
-            return self.proc()
+            return self.proc(background)
         finally:
             self._cleanup()
 
@@ -119,14 +119,27 @@ class Operation():
             requires, self.resource_config.get(requires))
         self._run.write_attr("resources", _sort_resolved(resolved))
 
-    def proc(self):
+    def proc(self, background=None):
         try:
             log.debug("tracker.Operation.proc()")
             # self._pre_proc()
         except subprocess.CalledProcessError as e:
             return e.returncode
         else:
+            if background:
+                self._background_proc(background)
+                return 0
             return self._foreground_proc()
+
+    def _background_proc(self, pidfile):
+        import daemonize
+
+        def action():
+            return self._foreground_proc()
+        daemon = daemonize.Daemonize(
+            app="tracker_op", action=action, pid=pidfile)
+        log.info("Operation started in background (pidfile is %s)", pidfile)
+        daemon.start()
 
     def _foreground_proc(self):
         self._start_proc()

@@ -17,7 +17,11 @@ import click
 from tracker import operation as oplib
 from tracker import remote as remotelib
 from tracker import resources
-from tracker.utils import cli, click_utils, config
+
+from tracker.utils import cli
+from tracker.utils import click_utils
+from tracker.utils import config
+from tracker.utils import path as pathlib
 
 log = logging.getLogger(__name__)
 
@@ -52,10 +56,10 @@ def run_params(fn):
         # click.Option(
         #     ("--optimize",), is_flag=True,
         #     help="Optimize the run using the default optimizer."),
-        click.Option(
-            ("-q", "--quiet",),
-            help="Do not show output.",
-            is_flag=True),
+        # click.Option(
+        #     ("-q", "--quiet",),
+        #     help="Do not show output.",
+        #     is_flag=True),
         click.Option(
             ("--run-dir",), metavar="DIR",
             help=(
@@ -154,7 +158,9 @@ def _run_remote(op, args):
 
 def _run_local(op, args):
     try:
-        returncode = op.run()
+        returncode = op.run(
+            _op_pidfile(args)
+        )
     except resources.ResourceError as e:
         cli.error(
             "Run failed as a resource could not be obtained: {}".format(e))
@@ -168,6 +174,13 @@ def _run_local(op, args):
 
 def _get_experiment_dict_by_name(name, experiments):
     return next(x for x in experiments if name in x["experiment"])
+
+
+def _op_pidfile(args):
+    if args.background:
+        return pathlib.TempFile("tracker-pid-").path
+    else:
+        return None
 
 
 def _op_run_dir(args):
