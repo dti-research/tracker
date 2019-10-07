@@ -15,6 +15,7 @@ import os
 import click
 
 from tracker import operation as oplib
+from tracker import remote as remotelib
 from tracker import resources
 from tracker.utils import cli, click_utils, config
 
@@ -41,6 +42,9 @@ def run_params(fn):
             help=("Limit availabe GPUs to DEVICES, a comma separated list of "
                   "device IDs. By default all GPUs are available. Cannot be"
                   "used with --no-gpus.")),
+        click.Option(
+            ("-b", "--background",), is_flag=True,
+            help="Run operation in background."),
         click.Option(
             ("--no-gpus",), is_flag=True,
             help="Disable GPUs for run. Cannot be used with --gpu."),
@@ -123,15 +127,30 @@ def _run(args, op):
 
 
 def _run_remote(op, args):
-    # cli.out("Conducting experiment: {} on {}"
-    #         .format(args.experiment, args.remote))
-    raise NotImplementedError
+    remote = remotelib.remote_for_args(args)
+    print(remote.private_key)
+    try:
+        run_id = remote.run_op(**_run_kw(args))
+    except remotelib.RunFailed as e:
+        _handle_remote_run_failed(e, remote)
+    except remotelib.RemoteProcessError as e:
+        _handle_remote_process_error(e)
+    except remotelib.RemoteProcessDetached as e:
+        _handle_remote_process_detached(e, args.remote)
+    except remotelib.OperationError as e:
+        _handle_remote_op_error(e, remote)
+    except remotelib.OperationNotSupported:
+        cli.error("%s does not support this operation" % remote.name)
+    else:
+        if args.background:
+            cli.out(
+                "{run_id} is running remotely on {remote}\n"
+                "To watch use 'tracker watch {run_id} -r {remote}'"
+                .format(run_id=run_id[:8], remote=args.remote))
+    print(run_id)
 
 
 def _run_local(op, args):
-    # cli.out("Conducting experiment: {}"
-    #         .format(args.experiment))
-
     try:
         returncode = op.run()
     except resources.ResourceError as e:
@@ -171,7 +190,7 @@ def _op_gpus(args):
 
 
 def _strip_op_def_from_experiment(args):
-    # Strip op from args.
+    # Strip op from args.experiment
 
     if ":" in args.experiment:
         return args.experiment.split(":")
@@ -187,6 +206,46 @@ def _strip_op_def_from_experiment(args):
     else:
         return experiment, op_def
     """
+
+
+""" Error Handlers
+"""
+
+
+def _handle_remote_run_failed(e, remote):
+    run_id = os.path.basename(e.remote_run_dir)
+    cli.out(
+        "Try 'tracker runs info %s -O -r %s' to view its output."
+        % (run_id[:8], remote.name), err=True)
+    cli.error()
+
+
+def _handle_remote_process_error(e):
+    cli.error(exit_status=e.exit_status)
+
+
+def _handle_remote_process_detached(e, remote):
+    run_id = e.args[0]
+    cli.out(
+        "\nDetached from remote run {run_id} (still running)\n"
+        "To re-attach use 'tracker watch {run_id} -r {remote}'"
+        .format(run_id=run_id[:8], remote=remote))
+
+
+def _handle_remote_op_error(e, remote):
+    if e.args[0] == "running":
+        assert len(e.args) == 2, e.args
+        msg = (
+            "{run_id} is still running\n"
+            "Wait for it to stop or try 'tracker stop"
+            "{run_id} -r {remote_name}' "
+            "to stop it."
+            .format(
+                run_id=e.args[1],
+                remote_name=remote.name))
+    else:
+        msg = e.args[0]
+    cli.error(msg)
 
 
 """ Run confirmation prompt
@@ -224,3 +283,60 @@ def _format_remote_suffix(args):
     if args.remote:
         return " on %s" % args.remote
     return ""
+
+
+def _run_kw(args):
+    names = [
+        # "disable_plugins",
+        # "flags",
+        # "force_flags",
+        "background",
+        "experiment",
+        "gpus",
+        # "init_trials",
+        # "label",
+        # "batch_label",
+        # "max_trials",
+        # "maximize",
+        # "minimize",
+        # "needed",
+        "no_gpus",
+        "n_trials",
+        # "no_wait",
+        # "opt_flags",
+        "optimize",
+        "optimizer",
+        # "opspec",
+        "random_seed",
+        # "restart",
+        # "stop_after",
+    ]
+    ignore = [
+        # "background",
+        # "pidfile",
+        # "help_model",
+        # "help_op",
+        # "print_cmd",
+        # "print_env",
+        # "print_trials",
+        "quiet",
+        "remote",
+        # "rerun",
+        "run_dir",
+        # "save_trials",
+        # "set_trace",
+        # "stage",
+        # "test_output_scalars",
+        # "test_sourcecode",
+        "yes",
+    ]
+    return _arg_kw(args, names, ignore)
+
+
+def _arg_kw(args, names, ignore):
+    kw_in = args.as_kw()
+    kw = {name: kw_in[name] for name in names}
+    for name in names + ignore:
+        del kw_in[name]
+    assert not kw_in, kw_in
+    return kw

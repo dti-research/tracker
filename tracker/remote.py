@@ -53,6 +53,17 @@ class RemoteProcessError(Exception):
         return cls(e.returncode, e.cmd, e.output)
 
 
+class RunFailed(Exception):
+
+    def __init__(self, remote_run_dir):
+        super(RunFailed, self).__init__(remote_run_dir)
+        self.remote_run_dir = remote_run_dir
+
+
+class RemoteProcessDetached(Exception):
+    pass
+
+
 class RemoteConfig(dict):
     def __getitem__(self, key):
         try:
@@ -167,11 +178,11 @@ def remote_for_args(args):
             % args.remote)
     except UnsupportedRemoteType as e:
         cli.error(
-            "remote '%s' in ~/.tracker/config.yml has unsupported "
+            "remote '%s' in ~/.tracker/tracker.yaml has unsupported "
             "type: %s" % (args.remote, e.args[0]))
     except MissingRequiredConfig as e:
         cli.error(
-            "remote '%s' in ~/.tracker/config.yml is missing required "
+            "remote '%s' in ~/.tracker/tracker.yaml is missing required "
             "config: %s" % (args.remote, e.args[0]))
 
 

@@ -8,6 +8,7 @@
 
 import sys
 
+from tracker import run as runlib
 from tracker import remote as remotelib
 from . import ssh_util
 
@@ -56,3 +57,21 @@ class SSHRemote(remotelib.Remote):
     def stop(self):
         raise remotelib.OperationNotSupported(
             "`stop` is not supported for ssh remotes")
+
+    def run_op(self, **opts):
+        print(opts)
+        run_id = runlib.mkid()
+        return run_id
+        # with util.TempDir(prefix="guild-remote-pkg-") as tmp:
+        #     _build_package(tmp.path)
+        #     remote_run_dir = self._init_remote_run(tmp.path, opspec, restart)
+        # self._start_op(remote_run_dir, opspec, flags, **opts)
+        # run_id = os.path.basename(remote_run_dir)
+        # if no_wait:
+        #     return run_id
+        # try:
+        #     self._watch_started_op(remote_run_dir)
+        # except KeyboardInterrupt:
+        #     raise remotelib.RemoteProcessDetached(run_id)
+        # else:
+        #     return run_id
