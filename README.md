@@ -1,8 +1,8 @@
 # Tracker
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
-![Repo Size](https://img.shields.io/github/repo-size/dti-research/tracker)
 ![Build](https://img.shields.io/travis/dti-research/tracker)
+![Repo Size](https://img.shields.io/github/repo-size/dti-research/tracker)
 [![Documentation Status](https://readthedocs.org/projects/dti-tracker/badge/?version=latest)](https://dti-tracker.readthedocs.io/en/latest/?badge=latest)
 ![Git Tag](https://img.shields.io/github/tag-date/dti-research/tracker)
 
