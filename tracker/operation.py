@@ -83,8 +83,11 @@ class Operation():
 
     def _init_run(self, path):
         if not path:
+            experiment_runs_path = \
+                pathlib.experiment_runs_dir(
+                    self.experiment_config.get("experiment"))
             run_id = run.mkid()
-            path = os.path.join(pathlib.runs_dir(), run_id)
+            path = os.path.join(experiment_runs_path, run_id)
         else:
             run_id = os.path.basename(path)
 

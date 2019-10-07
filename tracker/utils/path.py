@@ -13,3 +13,9 @@ def path(*names):
 
 def runs_dir():
     return path("runs")
+
+
+def experiment_runs_dir(experiment_name):
+    return os.path.join(
+        path("experiments"),
+        experiment_name)
