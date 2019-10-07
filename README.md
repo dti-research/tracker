@@ -122,7 +122,7 @@ We acknowledge that using Tracker can seem a bit overwhelming to begin with, so 
 ## Support
 
 Installation problems? Feature requests? General questions?
-* read through examples and API [documentation](./docs)
+* read through examples and API [documentation](https://dti-tracker.readthedocs.io/en/latest/)
 * create github issues on the [Tracker project](https://github.com/dti-research/tracker)
 
 ## Acknowledgements
@@ -136,7 +136,7 @@ For Tracker, please cite Lynnerup et al. (2019).
 
 * Lynnerup, N. A., Hallam, J., Hasle, R. (2019). [Tools for Reproducible Research in Machine Learning](references/IROS_2019___Tools_for_Reproducible_Research.pdf). In *IROS 2019 Workshop on 'Reproducibility of Research Benchmarking and Verification of Autonomous Robotic Systems'*.
 
-# Epilogue
+## Epilogue
 
 This is the part where I say something thoughtful about how wonderful it is to create reproducible research. And what a wonderful person you are for choosing to follow good experimental practices.
 
