@@ -93,6 +93,15 @@ class Remote():
     def stop(self):
         raise NotImplementedError()
 
+    def which(self, cmd):
+        raise NotImplementedError()
+
+    def create_cmd(self, cmd):
+        raise NotImplementedError()
+
+    def check_output(self, cmd):
+        raise NotImplementedError()
+
     @staticmethod
     def get_stop_details():
         return None

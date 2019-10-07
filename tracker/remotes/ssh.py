@@ -8,8 +8,10 @@
 
 import sys
 
-from tracker import run as runlib
 from tracker import remote as remotelib
+from tracker import run as runlib
+from tracker.utils import utils
+
 from . import ssh_util
 
 
@@ -58,8 +60,29 @@ class SSHRemote(remotelib.Remote):
         raise remotelib.OperationNotSupported(
             "`stop` is not supported for ssh remotes")
 
+    def which(self, cmd):
+        which_cmd = "where" if utils.PLATFORM == "Windows" else "which"
+        return self._ssh_output(which_cmd + " " + cmd)
+
+    def check_output(self, cmd):
+        return self._ssh_output(cmd)
+
+    def create_cmd(self, cmd):
+        return ssh_util.get_ssh_cmd(
+            self.host, cmd,
+            user=self.user,
+            private_key=self.private_key,
+            connect_timeout=self.connect_timeout,
+            port=self.port)
+
     def run_op(self, **opts):
-        print(opts)
+        # print(opts)
+        # {'background': False, 'experiment': 'cnn_test',
+        # 'gpus': None, 'no_gpus': False, 'n_trials': None,
+        # 'optimize': False, 'optimizer': None, 'random_seed': None}
+
+        self._init_run()
+
         run_id = runlib.mkid()
         return run_id
         # with util.TempDir(prefix="guild-remote-pkg-") as tmp:
@@ -75,3 +98,20 @@ class SSHRemote(remotelib.Remote):
         #     raise remotelib.RemoteProcessDetached(run_id)
         # else:
         #     return run_id
+
+    def _init_run(self):
+        src = "/home/nily/Desktop/ast_test/src"  # HACK
+        host_dest = "/home/dti/Desktop"  # HACK
+        ssh_util.rsync_copy_to(
+            src, self.host, host_dest,
+            user=self.user,
+            private_key=self.private_key,
+            port=self.port)
+
+    def _ssh_output(self, cmd):
+        return ssh_util.ssh_output(
+            self.host, [cmd],
+            user=self.user,
+            private_key=self.private_key,
+            connect_timeout=self.connect_timeout,
+            port=self.port)

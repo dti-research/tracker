@@ -54,12 +54,13 @@ STATS = [
 # For all stats run: `nvidia-smi --help-query-gpu`
 
 
-class GPUPlugin():
+class GPU():
 
     _stats_cmd = None
 
-    def __init__(self):
-        self._stats_cmd = _stats_cmd()
+    def __init__(self, remote=None):
+        self._remote = remote
+        self._stats_cmd = self._run_which_cmd()
 
     def get_gpu_summary(self):
         if not self._stats_cmd:
@@ -82,17 +83,23 @@ class GPUPlugin():
         else:
             return []
 
+    def _run_which_cmd(self):
+        if self._remote:
+            nvidia_smi = self._remote.which("nvidia-smi")
+        else:
+            nvidia_smi = utils.which("nvidia-smi")
 
-def _stats_cmd():
-    nvidia_smi = utils.which("nvidia-smi")
-    if not nvidia_smi:
-        return None
-    else:
-        return [
-            nvidia_smi,
-            "--format=csv,noheader",
-            "--query-gpu=%s" % ",".join(STATS),
-        ]
+        if not nvidia_smi:
+            return None
+        else:
+            cmd = [nvidia_smi,
+                   "--format=csv,noheader",
+                   "--query-gpu=%s" % ",".join(STATS),
+                   ]
+            if self._remote:
+                return self._remote.create_cmd(cmd)
+            else:
+                return cmd
 
 
 def _read_csv_lines(raw_in):

@@ -43,6 +43,13 @@ def _full_host(host, user):
         return host
 
 
+def get_ssh_cmd(host, cmd, user=None, private_key=None,
+                connect_timeout=DEFAULT_CONNECT_TIMEOUT, port=None):
+    cmd = _ssh_cmd(host, cmd, user, private_key, connect_timeout, port)
+    log.debug("ssh cmd: %r", cmd)
+    return cmd
+
+
 def ssh_cmd(host, cmd, user=None, private_key=None,
             connect_timeout=DEFAULT_CONNECT_TIMEOUT, port=None):
     cmd = _ssh_cmd(host, cmd, user, private_key, connect_timeout, port)
@@ -67,9 +74,11 @@ def ssh_output(host, cmd, user=None, private_key=None,
     cmd = _ssh_cmd(host, cmd, user, private_key, connect_timeout, port)
     log.debug("ssh cmd: %r", cmd)
     try:
-        return subprocess.check_output(cmd)
+        out = subprocess.check_output(cmd)
     except subprocess.CalledProcessError as e:
         raise remotelib.RemoteProcessError.from_called_process_error(e)
+    else:
+        return out.strip().decode("utf-8")
 
 
 def _ssh_opts(private_key, verbose, connect_timeout, port):

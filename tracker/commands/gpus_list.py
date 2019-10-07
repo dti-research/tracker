@@ -13,20 +13,39 @@ import logging
 
 import click
 
+from tracker import remote as remotelib
+from tracker.utils import click_utils
 from tracker.utils import cli
+from tracker.utils import config
 from tracker.utils import gpu
 
 
 log = logging.getLogger(__name__)
 
 
+def gpus_params(fn):
+    click_utils.append_params(fn, [
+        click.Option(
+            ("-r", "--remote"), metavar="REMOTE",
+            help="Get list of GPUs from remote.",
+            autocompletion=config.get_remote_names),
+    ])
+    return fn
+
+
 @click.command("list")
+@click_utils.use_args
+@gpus_params
 @click.pass_context
-def list_gpus(ctx):
+def list_gpus(ctx, args):
     """ Lists CUDA Devices
     """
+    if args.remote:
+        remote = remotelib.remote_for_args(args)
+        gpu_handler = gpu.GPU(remote=remote)
+    else:
+        gpu_handler = gpu.GPU()
 
-    gpu_handler = gpu.GPUPlugin()
     gpu_stats = gpu_handler.get_gpu_summary()
 
     cols = [
