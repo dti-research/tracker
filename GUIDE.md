@@ -14,7 +14,7 @@ create your experiment files manually or invoke
       parameters:         # [optional]
         batch_size:
           description: Number of images pr. batch
-          default: 32
+          value: 32
         lr:
           description: Learning rate
           min: 1e-4
@@ -70,4 +70,11 @@ remotes:
 | `host` | Server host name or IP address (required string) |
 | `port` | Server SSH port (number) By default, port 22 is used for SSH connections. |
 | `user` | User used when connecting over SSH (string) By default, the active user name is used for SSH connections. |
+| `private-key`* | 
 | `tracker‑home` | Path to Tracker home on the remote server (string). |
+
+To add your private key to the SSH server add your public key to the list of authorised keys by:
+
+```bash
+cat ~/.ssh/id_rsa.pub | ssh user@192.168.0.1 'cat >> .ssh/authorized_keys'
+```
