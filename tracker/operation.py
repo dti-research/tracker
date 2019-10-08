@@ -8,7 +8,6 @@
 
 import logging
 import os
-import shlex
 import subprocess
 import time
 
@@ -18,6 +17,7 @@ from tracker import parameters
 from tracker import resources
 from tracker import run
 from tracker.utils import cli
+from tracker.utils import command
 from tracker.utils import exit_code
 from tracker.utils import file as filelib
 from tracker.utils import path as pathlib
@@ -362,14 +362,7 @@ def _sort_resolved(resolved):
 def split_cmd(main):
     if isinstance(main, list):
         return main
-    return shlex_split(main or "")
-
-
-def shlex_split(s):
-    # If s is None, this call will block (see
-    # https://bugs.python.org/issue27775)
-    s = s or ""
-    return shlex.split(s)
+    return command.shlex_split(main or "")
 
 
 """ Mutex for process control
