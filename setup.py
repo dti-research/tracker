@@ -28,6 +28,7 @@ requirements = [
     'sh',
     'uuid',
     'astor>=0.8.0',
+    'werkzeug>=0.15.6',
 ]
 
 setup(
