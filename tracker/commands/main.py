@@ -19,6 +19,7 @@ from tracker.utils import utils
 # Custom click commands
 from .cd import cd
 from .create import create
+from .diff import diff
 from .experiment import experiment
 from .experiments import experiments
 from .gpus import gpus
@@ -26,6 +27,7 @@ from .ls import ls
 from .remote import remote
 from .remotes import remotes
 from .rm import rm
+from .tensorboard import tensorboard
 
 try:
     _home = os.environ["VIRTUAL_ENV"]
@@ -89,6 +91,7 @@ def main(args):
 
 main.add_command(cd)
 main.add_command(create)
+main.add_command(diff)
 main.add_command(experiment)
 main.add_command(experiments)
 main.add_command(gpus)
@@ -96,3 +99,4 @@ main.add_command(ls)
 main.add_command(remote)
 main.add_command(remotes)
 main.add_command(rm)
+main.add_command(tensorboard)

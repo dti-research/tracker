@@ -78,3 +78,8 @@ def rm_temp_dir(path):
             log.exception("rmtree %s", path)
         else:
             log.error("error removing %s: %s", path, e)
+
+
+def get_immediate_subdirectories(path):
+    return [name for name in os.listdir(path)
+            if os.path.isdir(os.path.join(path, name))]

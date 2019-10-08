@@ -23,6 +23,10 @@ PLATFORM = platform.system()
 OS_ENVIRON_BLACKLIST = set([])
 
 
+class TryFailed(RuntimeError):
+    """Raise to indicate an attempt in try_apply failed."""
+
+
 def safe_make_dir(d):
     d = os.path.realpath(d)
     try:
@@ -61,6 +65,15 @@ def find_apply(funs, *args, **kw):
     return kw.get("default")
 
 
+def try_apply(funs, *args):
+    for f in funs:
+        try:
+            return f(*args)
+        except TryFailed:
+            continue
+    raise TryFailed(funs, args)
+
+
 def try_read(path, default=None, apply=None):
     try:
         f = open(path, "r")
@@ -87,6 +100,25 @@ def which(cmd):
         return None
     else:
         return out.strip().decode("utf-8")
+
+
+def symlink(target, link):
+    if PLATFORM == "Windows":
+        _windows_symlink(target, link)
+    else:
+        os.symlink(target, link)
+
+
+def _windows_symlink(target, link):
+    if os.path.isdir(target):
+        args = ["mklink", "/D", link, target]
+    else:
+        args = ["mklink", link, target]
+    try:
+        subprocess.check_output(args, shell=True, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        error(e.output)
+        raise
 
 
 def safe_osenv():
@@ -117,3 +149,10 @@ def kill_process_tree(pid, force=False, timeout=None):
     for proc in procs:
         proc.send_signal(sig)
     return psutil.wait_procs(procs, timeout=timeout)
+
+
+def safe_mtime(path):
+    try:
+        return os.path.getmtime(path)
+    except OSError:
+        return None

@@ -9,13 +9,21 @@
 """ Helper class for trials (named run in command)
 """
 
+import errno
 import os
 import uuid
 
 import ruamel.yaml as yaml
 
 from tracker import utils
+from tracker.utils import cli
+from tracker.utils import config
+from tracker.utils import path as pathlib
 from tracker.utils import yaml as yamllib
+
+
+class NoSuchRun(ValueError):
+    pass
 
 
 class Run():
@@ -200,3 +208,58 @@ class Run():
 
 def mkid():
     return uuid.uuid4().hex
+
+
+def run_dir_for_id(run_id):
+    try:
+        return _path_for_id(run_id)
+    except NoSuchRun:
+        cli.out(
+            "The trial with id: '{}' was not found\n"
+            "Show trials by running 'tracker experiment NAME "
+            "--list_trials'."
+            .format(run_id))
+        cli.error("No such directory", errno.ENOENT)
+
+
+def _path_for_id(run_id):
+    experiments = config.get_project_config().get("experiments")
+    run_dirs = _get_all_run_dirs(experiments)
+
+    try:
+        return next(x for x in run_dirs if run_id in x)
+    except StopIteration:
+        raise NoSuchRun(run_id)
+
+
+def _get_all_run_dirs(experiments):
+    run_dirs = []
+
+    for exp in experiments:
+        runs_dir = pathlib.experiment_runs_dir(exp)
+
+        run_dirs.extend([
+            os.path.join(runs_dir, d)
+            for d in pathlib.get_immediate_subdirectories(runs_dir)
+        ])
+
+    return run_dirs
+
+
+def get_all_run_ids():
+    experiments = config.get_project_config().get("experiments")
+    run_ids = []
+
+    for exp in experiments:
+        runs_dir = pathlib.experiment_runs_dir(exp)
+        # print(pathlib.get_immediate_subdirectories(runs_dir))
+        run_ids.extend(pathlib.get_immediate_subdirectories(runs_dir))
+
+    return run_ids
+
+    # user_config = config.get_user_config()
+    # remotes = user_config.get("remotes", {})
+    # try:
+    #     remote = remotes[name]
+    # except KeyError:
+    #     raise NoSuchRun(id)
