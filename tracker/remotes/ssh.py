@@ -86,7 +86,9 @@ class SSHRemote(remotelib.Remote):
         # 'optimize': False, 'optimizer': None, 'random_seed': None}
 
         self._init_run()
-        self._tracker_cmd("ls")
+        self._tracker_cmd("experiment run {experiment}".format(
+            experiment=opts.get("experiment")
+        ))
 
         run_id = runlib.mkid()
         return run_id
@@ -105,6 +107,9 @@ class SSHRemote(remotelib.Remote):
         #     return run_id
 
     def _init_run(self):
+        self._copy_sourcecode()
+
+    def _copy_sourcecode(self):
         src = "/home/nily/Desktop/ast_test/src"  # HACK
         host_dest = "/home/dti/Desktop"  # HACK
         ssh_util.rsync_copy_to(

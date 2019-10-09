@@ -93,7 +93,7 @@ def run(ctx, args):
     """Runs an experiment
     """
     # Strip potential operation from experiment name
-    experiment, op_def = _strip_op_def_from_experiment(args)
+    experiment, op_name = _strip_op_name_from_experiment(args)
 
     # Safe load of experiment file path
     try:
@@ -111,7 +111,7 @@ def run(ctx, args):
     #  - Here we scan through the sourcecode
     #    and extract the (hyper-)parameters
     op = oplib.Operation(
-        op_def,
+        op_name,
         _op_run_dir(args),
         _get_experiment_dict_by_name(experiment, experiment_config),
         _op_gpus(args),
@@ -204,7 +204,7 @@ def _op_gpus(args):
     return None  # use all available (default)
 
 
-def _strip_op_def_from_experiment(args):
+def _strip_op_name_from_experiment(args):
     # Strip op from args.experiment
 
     if ":" in args.experiment:
@@ -215,11 +215,11 @@ def _strip_op_def_from_experiment(args):
     """
     value = args.experiment.split(":")
     try:
-        experiment, op_def = value
+        experiment, op_name = value
     except ValueError: # BUG: This does not catch the exception!
         return experiment, None
     else:
-        return experiment, op_def
+        return experiment, op_name
     """
 
 
@@ -269,12 +269,12 @@ def _handle_remote_op_error(e, remote):
 
 def _confirm_run(args, experiment, op):
     prompt = (
-        "You are about to run {experiment}{op_def}{remote_suffix}\n"
+        "You are about to run {experiment}{op_name}{remote_suffix}\n"
         "{parameters}"
         "Continue?"
         .format(
             experiment=experiment,
-            op_def=_format_operation(op),
+            op_name=_format_operation(op),
             remote_suffix=_format_remote_suffix(args),
             parameters=_format_parameters(op.parameters)
         ))
@@ -316,14 +316,13 @@ def _run_kw(args):
         # "minimize",
         # "needed",
         "no_gpus",
-        "n_trials",
         # "no_wait",
         # "opt_flags",
-        "optimize",
+        # "optimize",
         "optimizer",
         # "opspec",
-        "random_seed",
         # "restart",
+        "seed",
         # "stop_after",
     ]
     ignore = [
@@ -334,13 +333,14 @@ def _run_kw(args):
         # "print_cmd",
         # "print_env",
         # "print_trials",
-        "quiet",
+        # "quiet",
         "remote",
         # "rerun",
         "run_dir",
         # "save_trials",
         # "set_trace",
         # "stage",
+        "trials",
         # "test_output_scalars",
         # "test_sourcecode",
         "yes",

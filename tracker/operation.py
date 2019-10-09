@@ -9,6 +9,7 @@
 import logging
 import os
 import subprocess
+import sys
 import time
 
 import astor
@@ -28,7 +29,7 @@ log = logging.getLogger(__name__)
 
 PROC_TERM_TIMEOUT_SECONDS = 30
 
-DEFAULT_EXEC = "python3 -um tracker.operation_main {main}"
+DEFAULT_EXEC = "{python} -um tracker.operation_main {main}"
 
 
 class ProcessError(Exception):
@@ -38,7 +39,7 @@ class ProcessError(Exception):
 class Operation():
 
     def __init__(self,
-                 op_def=None,
+                 op_name=None,
                  run_dir=None,
                  experiment_config=None,
                  gpus=None,
@@ -47,8 +48,9 @@ class Operation():
         self._run_dir = run_dir
         self.experiment_config = experiment_config or {}
         self.resource_config = experiment_config.get("resources")
-        self._op_def = op_def
+        self._op_name = op_name
         self._op_config = self._get_op_config() or {}
+        self._env_config = experiment_config.get("environment", None)
         self.gpus = gpus
         self.args_yes = args_yes
         self.parameters = self._init_parameters()
@@ -64,10 +66,10 @@ class Operation():
         return self._run_dir or (self._run.path if self._run else None)
 
     def get_name(self):
-        return self._op_def
+        return self._op_name
 
     def _get_op_config(self):
-        return self.experiment_config["operations"][self._op_def]
+        return self.experiment_config.get("operations").get(self._op_name)
 
     def run(self, background):
         self._init_run(self._run_dir)
@@ -104,7 +106,7 @@ class Operation():
     def _init_attrs(self):
         assert self._run is not None
 
-        self._run.write_attr("opdef", self._op_def)
+        self._run.write_attr("opdef", self._op_name)
         self._run.write_attr("parameters", _to_dict(self.parameters))
         # self._run.write_attr("cmd", self.cmd_args)
 
@@ -155,6 +157,7 @@ class Operation():
 
         args = split_cmd(
             DEFAULT_EXEC.format(
+                python=self._python_exe(),
                 main=os.path.basename(self._op_config.get("main"))
             )
         )
@@ -293,7 +296,7 @@ class Operation():
                 return parameters.get_parameters_from_source(source)
         else:
             cli.error("No 'main' key is defined for operation: '{}'"
-                      .format(self._op_def))
+                      .format(self._op_name))
 
     def write_ast_to_source(self, tree):
         ast_source = astor.to_source(tree)
@@ -317,6 +320,25 @@ class Operation():
     def _init_digest(self):
         digest = filelib.files_digest(self._run.tracker_path("sourcecode"))
         self._run.write_attr("sourcecode_digest", digest)
+
+    def _python_exe(self):
+        """ Checks if the 'environment' key is
+            set in the experiment configuration
+            and returns the path to the python3
+            binary
+
+        Returns:
+            str -- path to python executable
+        """
+        if self._env_config:
+            if "virtualenv" in self._env_config.get("type"):
+                path = os.path.join(
+                    os.path.abspath(self._env_config.get("path")),
+                    "bin/python3"
+                )
+                return path
+            # Add another type of environment here.
+        return sys.executable
 
 
 def _to_dict(dict_values):
