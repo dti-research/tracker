@@ -252,7 +252,6 @@ def get_all_run_ids():
 
     for exp in experiments:
         runs_dir = pathlib.experiment_runs_dir(exp)
-        # print(pathlib.get_immediate_subdirectories(runs_dir))
         run_ids.extend(pathlib.get_immediate_subdirectories(runs_dir))
 
     return run_ids

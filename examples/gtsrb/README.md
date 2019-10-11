@@ -24,7 +24,7 @@ tracker create gtsrb.yaml
 6. Setup your virtual environment [Optional]
 
 ```bash
-virtualenv -p python3 ./venv
+virtualenv -p python3 ./env
 ```
 
 7. Begin coding!

@@ -92,6 +92,7 @@ def run_params(fn):
 def run(ctx, args):
     """Runs an experiment
     """
+    print(args)
     # Strip potential operation from experiment name
     experiment, op_name = _strip_op_name_from_experiment(args)
 

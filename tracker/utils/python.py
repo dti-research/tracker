@@ -16,6 +16,10 @@ import os
 import sys
 
 
+PIP_CMD = "pip3"
+BUILD_DIR = "build-env"
+
+
 def exec_script(filename):
     """Execute a Python script.
 
@@ -62,3 +66,45 @@ def find_interpreter(version_spec):
         matching_ver = matching[0]
         return python_interps[matching_ver], matching_ver
     return None
+
+
+def _pip_install(pkgs, sudo=False):
+    sudo_part = "sudo -H " if sudo else ""
+    pkgs_part = " ".join([_pkg_spec(pkg) for pkg in pkgs])
+    # pipe to cat effectively disables progress bar
+    return (
+        "{sudo}{pip} install --upgrade {pkgs}"  # | cat
+        .format(
+            sudo=sudo_part,
+            pip=PIP_CMD,
+            pkgs=pkgs_part))
+
+
+def _pkg_spec(pkg):
+    if pkg.endswith(".txt"):
+        return "-r {}".format(pkg)
+    return pkg
+
+
+def activate_env(path):
+    return ". {}/bin/activate".format(path)
+
+
+def upgrade_pip():
+    return _pip_install(["pip"], sudo=True)
+
+
+def install_virtualenv():
+    return _pip_install(["virtualenv"], sudo=True)
+
+
+def delete_env(path):
+    return "rm -rf {}".format(path)
+
+
+def init_virtualenv(path):
+    return "python3 -m virtualenv {}".format(path)
+
+
+def user_install_cmd(init_cmds):
+    return init_cmds.split("\n")

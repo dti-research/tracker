@@ -22,6 +22,7 @@ from tracker.utils import command
 from tracker.utils import exit_code
 from tracker.utils import file as filelib
 from tracker.utils import path as pathlib
+from tracker.utils import python
 from tracker.utils import timestamp
 from tracker.utils import utils
 
@@ -74,6 +75,10 @@ class Operation():
     def run(self, background):
         self._init_run(self._run_dir)
 
+        # Check if we should initialise environment
+        # if self._env_config:
+        #    self._init_env()
+
         # Start the process
         self._started = timestamp.timestamp()
         self._run.write_attr("started", self._started)
@@ -82,6 +87,36 @@ class Operation():
             return self.proc(background)
         finally:
             self._cleanup()
+
+    def _init_env(self):
+        if "virtualenv" in self._env_config.get("type"):
+            cmds = self._env_cmds()
+
+            # Extend commands with the ones specified by user
+            cmds.extend(
+                python.user_install_cmd(self._env_config.get("init")))
+
+            print(cmds)
+
+            for c in cmds:
+                cmd = split_cmd(c)
+                print(cmd)
+                try:
+                    subprocess.Popen(cmd)
+                except OSError as e:
+                    raise ProcessError(e)
+
+    def _env_cmds(self):
+        env_dir = self._env_config.get("path")
+        env_run_dir = os.path.join(self.run_dir, env_dir)
+        return [
+            python.upgrade_pip(),
+            python.install_virtualenv(),
+            python.delete_env(env_run_dir),
+            "mkdir -p {}".format(env_run_dir),
+            python.init_virtualenv(env_run_dir),
+            python.activate_env(env_run_dir)
+        ]
 
     def _init_run(self, path):
         if not path:
