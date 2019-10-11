@@ -38,3 +38,6 @@ def _params_specified(kw):
 
 
 gpus.add_command(list_gpus)
+
+# TODO: Add ability to activate/deactive the use of specific GPUs as a
+#       compliment to "...run --no-gpus" or "...run --gpus 1,2,3"

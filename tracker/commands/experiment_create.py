@@ -24,6 +24,11 @@ log = logging.getLogger(__name__)
     u'--template_file', type=click.Path(), default=None,
     help=u'File to be used as a template for the experiment configuration',
 )
+@click.option(
+    u'--source_file', type=click.Path(), default=None,
+    help=u'File to be used when searching for parameters to insert into '
+         'the experiment configuration',
+)
 @click.pass_context
 @click_utils.use_args
 def create(ctx, args):
@@ -33,3 +38,12 @@ def create(ctx, args):
     log.info("Creating '{}' experiment".format(args.name))
     if args.template_file is not None:
         log.info("   Using {} as a template".format(args.template_file))
+
+    # TODO: Implement so source files can be analysed (as when run) to
+    #       extract parameters (numerical assigns).
+
+    # TODO: Implement so other experiment configuration files can be used
+    #       to generate a new experiment file.
+
+    # TODO: In both of the above cases; prompt user for correction of
+    #       parameters.

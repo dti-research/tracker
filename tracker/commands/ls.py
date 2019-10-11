@@ -30,4 +30,13 @@ def ls(ctx):
     """
 
     projects = projectslib.get_project_names_and_dirs()
-    cli.table(projects, ["name", "path"])
+    cols = ["name", "path"]
+
+    heading = {
+        col_name: col_name.capitalize()
+        for col_name in cols
+    }
+
+    data = [heading] + projects
+
+    cli.table(data, cols)

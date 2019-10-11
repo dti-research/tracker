@@ -25,6 +25,9 @@ def remote():
     """Manage remotes (start/stop/status).
     """
 
+    # TODO: Add command to add new remotes at either project or
+    #       at global level.
+
 
 remote.add_command(remote_start)
 remote.add_command(remote_status)

@@ -21,3 +21,7 @@ def list_experiments(ctx):
     """ Lists project experiments
     """
     log.debug("Listing all project experiments")
+
+    # TODO: List experiments
+
+    # TODO: Add ability to list trials

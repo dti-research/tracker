@@ -48,6 +48,8 @@ def cd(ctx, args):
     else:
         try:
             os.chdir(project_dir)
+            # The active shell will not change directory without rerunning
+            # /bin/bash
             os.system("/bin/bash")
         except OSError as e:
             cli.error(e)
