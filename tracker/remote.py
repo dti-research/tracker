@@ -75,11 +75,11 @@ class RemoteConfig(dict):
 class Remote():
     name = None
 
-    def push(self, runs, delete=False):
-        raise NotImplementedError()
-
-    def pull(self, runs, delete=False):
-        raise NotImplementedError()
+#    def push(self, runs, delete=False):
+#        raise NotImplementedError()
+#
+#    def pull(self, runs, delete=False):
+#        raise NotImplementedError()
 
     def status(self, verbose=False):
         raise NotImplementedError()
@@ -87,8 +87,8 @@ class Remote():
     def start(self):
         raise NotImplementedError()
 
-    def reinit(self):
-        raise NotImplementedError()
+#    def reinit(self):
+#        raise NotImplementedError()
 
     def stop(self):
         raise NotImplementedError()
@@ -96,54 +96,57 @@ class Remote():
     def which(self, cmd):
         raise NotImplementedError()
 
+    def copy_src_to_host(self, src, host):
+        raise NotImplementedError()
+
     def create_cmd(self, cmd):
         raise NotImplementedError()
 
-    @staticmethod
-    def get_stop_details():
-        return None
-
-    def run_op(self, opspec, flags, restart, no_wait, **opts):
-        raise NotImplementedError()
-
-    def list_runs(self, verbose=False, **filters):
-        raise NotImplementedError()
-
-    def filtered_runs(self, **filters):
-        raise NotImplementedError()
-
-    def one_run(self, run_id_prefix, attrs):
-        raise NotImplementedError()
-
-    def watch_run(self, **opts):
-        raise NotImplementedError()
-
-    def delete_runs(self, **opts):
-        raise NotImplementedError()
-
-    def restore_runs(self, **opts):
-        raise NotImplementedError()
-
-    def purge_runs(self, **opts):
-        raise NotImplementedError()
-
-    def label_runs(self, **opts):
-        raise NotImplementedError()
-
-    def run_info(self, **opts):
-        raise NotImplementedError()
-
-    def check(self, **opts):
-        raise NotImplementedError()
-
-    def stop_runs(self, **opts):
-        raise NotImplementedError()
-
-    def list_files(self, **opts):
-        raise NotImplementedError()
-
-    def diff_runs(self, **opts):
-        raise NotImplementedError()
+#     @staticmethod
+#     def get_stop_details():
+#         return None
+#
+#     def run_op(self, opspec, flags, restart, no_wait, **opts):
+#         raise NotImplementedError()
+#
+#     def list_runs(self, verbose=False, **filters):
+#         raise NotImplementedError()
+#
+#     def filtered_runs(self, **filters):
+#         raise NotImplementedError()
+#
+#     def one_run(self, run_id_prefix, attrs):
+#         raise NotImplementedError()
+#
+#     def watch_run(self, **opts):
+#         raise NotImplementedError()
+#
+#     def delete_runs(self, **opts):
+#         raise NotImplementedError()
+#
+#     def restore_runs(self, **opts):
+#         raise NotImplementedError()
+#
+#     def purge_runs(self, **opts):
+#         raise NotImplementedError()
+#
+#     def label_runs(self, **opts):
+#         raise NotImplementedError()
+#
+#     def run_info(self, **opts):
+#         raise NotImplementedError()
+#
+#     def check(self, **opts):
+#         raise NotImplementedError()
+#
+#     def stop_runs(self, **opts):
+#         raise NotImplementedError()
+#
+#     def list_files(self, **opts):
+#         raise NotImplementedError()
+#
+#     def diff_runs(self, **opts):
+#         raise NotImplementedError()
 
 
 def remote_op(op, prompt, default_resp, args):

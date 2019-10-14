@@ -27,7 +27,7 @@ from .ls import ls
 from .remote import remote
 from .remotes import remotes
 from .rm import rm
-from .tensorboard import tensorboard
+from .run import run
 
 try:
     _home = os.environ["VIRTUAL_ENV"]
@@ -99,4 +99,4 @@ main.add_command(ls)
 main.add_command(remote)
 main.add_command(remotes)
 main.add_command(rm)
-main.add_command(tensorboard)
+main.add_command(run)

@@ -9,20 +9,20 @@
 import logging
 import os
 import subprocess
-import sys
+# import sys
 import time
 
-import astor
+# import astor
 
-from tracker import parameters
-from tracker import resources
+# from tracker import parameters
+# from tracker import resources
 from tracker import run
-from tracker.utils import cli
+# from tracker.utils import cli
 from tracker.utils import command
 from tracker.utils import exit_code
 from tracker.utils import file as filelib
 from tracker.utils import path as pathlib
-from tracker.utils import python
+# from tracker.utils import python
 from tracker.utils import timestamp
 from tracker.utils import utils
 
@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 
 PROC_TERM_TIMEOUT_SECONDS = 30
 
-DEFAULT_EXEC = "{python} -um tracker.operation_main {main}"
+# DEFAULT_EXEC = "{python} -um tracker.operation_main {main}"
 
 
 class ProcessError(Exception):
@@ -39,23 +39,30 @@ class ProcessError(Exception):
 
 class Operation():
 
+    __properties__ = [
+        "name",
+        "run_dir",
+        "short_id",
+        "pid",
+        "status",
+        "timestamp",
+    ]
+
     def __init__(self,
-                 op_name=None,
+                 name=None,
                  run_dir=None,
-                 experiment_config=None,
-                 gpus=None,
-                 args_yes=False):
-        self.cmd_env = _init_cmd_env(gpus)
+                 exp_conf=None,
+                 remote=None,
+                 gpus=None):
+        self.name = name
         self._run_dir = run_dir
-        self.experiment_config = experiment_config or {}
-        self.resource_config = experiment_config.get("resources")
-        self._op_name = op_name
-        self._op_config = self._get_op_config() or {}
-        self._env_config = experiment_config.get("environment", None)
-        self.gpus = gpus
-        self.args_yes = args_yes
-        self.parameters = self._init_parameters()
-        self._config_parameters = None
+        self.experiment_config = exp_conf or {}
+        self.operation_config = self._get_operation_config()
+        self.environments = self._get_environtment_config()
+        self.parameters = self._get_parameter_config()
+        self.remote = remote or None
+        self.cmd = None
+        self._gpus = gpus
         self._started = None
         self._stopped = None
         self._run = None
@@ -66,107 +73,170 @@ class Operation():
     def run_dir(self):
         return self._run_dir or (self._run.path if self._run else None)
 
-    def get_name(self):
-        return self._op_name
+    def _get_operation_config(self):
+        return self.experiment_config.get("operations").get(self.name)
 
-    def _get_op_config(self):
-        return self.experiment_config.get("operations").get(self._op_name)
+    def _get_environtment_config(self):
+        return self.operation_config.get("environments")
 
-    def run(self, background):
+    def _get_parameter_config(self):
+        return self.operation_config.get("parameters")
+
+    def run(self, cmd, background):
+        assert self.cmd is None
+        self._init_cmd(cmd)
         self._init_run(self._run_dir)
 
-        # Check if we should initialise environment
-        # if self._env_config:
-        #    self._init_env()
-
-        # Start the process
-        self._started = timestamp.timestamp()
-        self._run.write_attr("started", self._started)
         try:
-            self.resolve_resources()
             return self.proc(background)
         finally:
             self._cleanup()
 
-    def _init_env(self):
-        if "virtualenv" in self._env_config.get("type"):
-            cmds = self._env_cmds()
-
-            # Extend commands with the ones specified by user
-            cmds.extend(
-                python.user_install_cmd(self._env_config.get("init")))
-
-            print(cmds)
-
-            for c in cmds:
-                cmd = split_cmd(c)
-                print(cmd)
-                try:
-                    subprocess.Popen(cmd)
-                except OSError as e:
-                    raise ProcessError(e)
-
-    def _env_cmds(self):
-        env_dir = self._env_config.get("path")
-        env_run_dir = os.path.join(self.run_dir, env_dir)
-        return [
-            python.upgrade_pip(),
-            python.install_virtualenv(),
-            python.delete_env(env_run_dir),
-            "mkdir -p {}".format(env_run_dir),
-            python.init_virtualenv(env_run_dir),
-            python.activate_env(env_run_dir)
-        ]
-
-    def _init_run(self, path):
-        if not path:
-            experiment_runs_path = \
-                pathlib.experiment_runs_dir(
-                    self.experiment_config.get("experiment"))
-            run_id = run.mkid()
-            path = os.path.join(experiment_runs_path, run_id)
+    def _init_cmd(self, cmd):
+        if self.remote:
+            self.cmd = \
+                "{remote_cmd} {adress} {cmd}".format(
+                    remote_cmd=self.remote.rtype,
+                    adress=self.remote.adress,
+                    cmd=cmd
+                )
         else:
-            run_id = os.path.basename(path)
+            self.cmd = cmd
 
-        self._run = run.Run(run_id, path)
+#     def run(self, background):
+#         self._init_run(self._run_dir)
+#
+#         # Check if we should initialise environment
+#         # if self._env_config:
+#         #    self._init_env()
+#
+#         # Start the process
+#         self._started = timestamp.timestamp()
+#         self._run.write_attr("started", self._started)
+#         try:
+#            self.resolve_resources()
+#            return self.proc(background)
+#         finally:
+#             self._cleanup()
+#
+#     def _init_env(self):
+#         if "virtualenv" in self._env_config.get("type"):
+#             cmds = self._env_cmds()
+#
+#             # Extend commands with the ones specified by user
+#             cmds.extend(
+#                 python.user_install_cmd(self._env_config.get("init")))
+#
+#             print(cmds)
+#
+#             for c in cmds:
+#                 cmd = split_cmd(c)
+#                 print(cmd)
+#                 try:
+#                     subprocess.Popen(cmd)
+#                 except OSError as e:
+#                     raise ProcessError(e)
+#
+#     def _env_cmds(self):
+#         env_dir = self._env_config.get("path")
+#         env_run_dir = os.path.join(self.run_dir, env_dir)
+#         return [
+#             python.upgrade_pip(),
+#             python.install_virtualenv(),
+#             python.delete_env(env_run_dir),
+#             "mkdir -p {}".format(env_run_dir),
+#             python.init_virtualenv(env_run_dir),
+#             python.activate_env(env_run_dir)
+#         ]
+#
+    def _init_run(self, run_dir):
+        if not run_dir:
+            exp_name = self.experiment_config.get("experiment")
+            experiment_runs_path = pathlib.experiment_runs_dir(exp_name)
+            run_id = run.mkid()
+            run_dir = os.path.join(experiment_runs_path, run_id)
+        else:
+            run_id = os.path.basename(run_dir)
+
+        self._run = run.Run(run_id, run_dir)
 
         log.debug("Initializing run in %s", self._run.path)
 
         self._run.init_skeleton()
         self._init_attrs()
-        self._copy_sourcecode()
-        # self._init_sourcecode()
+        self._init_environments()
         self._init_digest()
 
     def _init_attrs(self):
         assert self._run is not None
 
-        self._run.write_attr("opdef", self._op_name)
-        self._run.write_attr("parameters", _to_dict(self.parameters))
-        # self._run.write_attr("cmd", self.cmd_args)
+        self._run.write_attr("opdef", self.name)
+        self._run.write_attr("parameters", self.parameters)
+        self._run.write_attr("cmd", self.cmd)
 
-    def resolve_resources(self):
-        assert self._run is not None
-        if self._op_config.get("requires") is None:
-            return
+    def _init_environments(self):
+        """ Workflow:
+             - Read user config
+             - Create docker-compose.yaml file locally in run_dir
+             - If remote, push docker-compose file to remote
+             - If mount volume, copy that folder to run_dir
+        """
+        # self._run.tracker_path("sourcecode")
+        # docker_compose_file = 'docker-compose.yaml'
 
-        requires = self._op_config.get("requires")
-        # It doesn't matter if it has one or multiple requirements
-        resolved = resources.resolve(
-            requires, self.resource_config.get(requires))
-        self._run.write_attr("resources", _sort_resolved(resolved))
+        command = self._command()
+        log.debug(command)
 
-    def proc(self, background=None):
-        try:
-            log.debug("tracker.Operation.proc()")
-            # self._pre_proc()
-        except subprocess.CalledProcessError as e:
-            return e.returncode
+        # for env in self.environments:
+
+        print(self.environments)
+
+        # Copy file to remote
+        if self.remote:
+            src = './docker-compose.yaml'  # HACK
+            host = '/home/dti/'
+            self.remote.copy_src_to_host(src, host)
         else:
-            if background:
-                self._background_proc(background)
-                return 0
-            return self._foreground_proc()
+            #   -> Currently just a HACK to see if its running
+            dest = self._run.path
+            src = './docker-compose.yaml'
+            import shutil
+            shutil.copyfile(src, os.path.join(dest, "docker-compose.yaml"))
+
+    def _command(self):
+        return "./{exec} {args}".format(
+            exec=self.operation_config.get("executable"),
+            args=self._args()
+        )
+
+    def _args(self):
+        return " ".join([
+            "--{arg_name} {arg_value}".format(
+                arg_name=p,
+                arg_value=self.parameters[p].get("value"))
+            for p in sorted(self.parameters)
+        ])
+
+    def _init_digest(self):
+        digest = filelib.files_digest(self._run.tracker_path("sourcecode"))
+        self._run.write_attr("sourcecode_digest", digest)
+
+#     def resolve_resources(self):
+#         assert self._run is not None
+#         if self._op_config.get("requires") is None:
+#             return
+#
+#         requires = self._op_config.get("requires")
+#         # It doesn't matter if it has one or multiple requirements
+#         resolved = resources.resolve(
+#             requires, self.resource_config.get(requires))
+#         self._run.write_attr("resources", _sort_resolved(resolved))
+#
+    def proc(self, background=None):
+        if background:
+            self._background_proc(background)
+            return 0
+        return self._foreground_proc()
 
     def _background_proc(self, pidfile):
         import daemonize
@@ -190,13 +260,8 @@ class Operation():
 
         log.debug("Starting operation run %s", self._run.id)
 
-        args = split_cmd(
-            DEFAULT_EXEC.format(
-                python=self._python_exe(),
-                main=os.path.basename(self._op_config.get("main"))
-            )
-        )
-        env = self._proc_env()
+        args = split_cmd(self.cmd)
+        # env = self._proc_env()
         cwd = self._run.path
 
         log.debug("Starting new process with: '{}'".format(args))
@@ -204,10 +269,8 @@ class Operation():
         try:
             proc = subprocess.Popen(
                 args,
-                env=env,
+                # env=env,
                 cwd=cwd,
-                # stdout=subprocess.PIPE,
-                # stderr=subprocess.PIPE
             )
         except OSError as e:
             raise ProcessError(e)
@@ -258,90 +321,94 @@ class Operation():
             return
         self._run.write_attr("exit_status", self._exit_status)
         self._run.write_attr("stopped", self._stopped)
-
-    def _proc_env(self):
-        assert self._run is not None
-        env = dict(self.cmd_env)
-        env["RUN_DIR"] = self._run.path
-        env["RUN_ID"] = self._run.id
-        utils.check_env(env)
-        return env
-
-    def _copy_sourcecode(self):
-        assert self._run is not None
-
-        log.debug("Copying source code files for run {}".format(self._run.id))
-
-        # Output dir (destination) of the sourcecode
-        dest = self._run.tracker_path("sourcecode")
-
-        # Get root of sourcecode
-        root = os.path.dirname(os.path.abspath(self._op_config.get("main")))
-
-        # Select files to copy
-        rules = (
-            filelib.base_sourcecode_select_rules()
-        )
-        select = filelib.FileSelect(root, rules)
-
-        # Copy the files
-        log.debug("Copy from: '{}' to: '{}'".format(root, dest))
-        filelib.copytree(dest, select, root)
-
-    def _init_parameters(self):
-        main_entry = self._op_config.get("main")
-
-        if main_entry:
-            source = os.path.abspath(main_entry)
-            if not os.path.exists(source):
-                cli.error(
-                    "The main entry file: '{}' does not exists!"
-                    .format(source))
-
-            # Check if user has specified parameters
-            if self._op_config.get("parameters"):
-                # Get all parameters from source
-                source_parameters = parameters.get_parameters_from_source(
-                    source)
-
-                self._config_parameters = _create_parameter_list(
-                    self._op_config.get("parameters"))
-
-                if self._config_parameters:
-                    # Check if user specified parameter values are the same
-                    # as they've written in the code.
-                    ast_tree = parameters.check_parameters(
-                        source,
-                        self._config_parameters,
-                        self.args_yes)
-
-                    # Write AST tree to source code file
-                    # overwriting the original(!) # BUG
-                    # TODO: Instead of overwriting the source code
-                    # write the ast tree to a temp file and later
-                    # copy that file into the run_dir
-                    self.write_ast_to_source(ast_tree)
-
-                # Merge the two lists and return
-                # (overwriting sourcecode defaults)
-                return {x["key"]: x for x in
-                        source_parameters + self._config_parameters}.values()
-            else:
-                # Return parameters from source code
-                return parameters.get_parameters_from_source(source)
-        else:
-            cli.error("No 'main' key is defined for operation: '{}'"
-                      .format(self._op_name))
-
-    def write_ast_to_source(self, tree):
-        ast_source = astor.to_source(tree)
-
-        main_entry = self._op_config.get("main")
-        source = os.path.abspath(main_entry)
-
-        f = open(source, "w")
-        f.write(ast_source)
-        f.close()
+#
+#     def _proc_env(self):
+#         assert self._run is not None
+#         env = dict(self.cmd_env)
+#         env["RUN_DIR"] = self._run.path
+#         env["RUN_ID"] = self._run.id
+#         utils.check_env(env)
+#         return env
+#
+#     def _copy_sourcecode(self):
+#         assert self._run is not None
+#
+#         log.debug(
+#            "Copying source code files for run {}".format(self._run.id))
+#
+#         # Output dir (destination) of the sourcecode
+#         dest = self._run.tracker_path("sourcecode")
+#
+#         # Get root of sourcecode
+#         root = os.path.dirname(os.path.abspath(self._op_config.get("main")))
+#
+#         # Select files to copy
+#         rules = (
+#             filelib.base_sourcecode_select_rules()
+#         )
+#         select = filelib.FileSelect(root, rules)
+#
+#         # Copy the files
+#         log.debug("Copy from: '{}' to: '{}'".format(root, dest))
+#         filelib.copytree(dest, select, root)
+#
+#     def _init_parameters(self):
+#         return self._op_config.get("parameters")
+#         #main_entry = self._op_config.get("main")
+# #
+#         #if main_entry:
+#         #    source = os.path.abspath(main_entry)
+#         #    if not os.path.exists(source):
+#         #        cli.error(
+#         #            "The main entry file: '{}' does not exists!"
+#         #            .format(source))
+# #
+#         #    # Check if user has specified parameters
+#         #    if self._op_config.get("parameters"):
+#         #        # Get all parameters from source
+#         #        source_parameters = parameters.get_parameters_from_source(
+#         #            source)
+# #
+#         #        self._config_parameters = _create_parameter_list(
+#         #            self._op_config.get("parameters"))
+# #
+#         #        if self._config_parameters:
+#         #            # Check if user specified parameter values are the same
+#         #            # as they've written in the code.
+#         #            ast_tree = parameters.check_parameters(
+#         #                source,
+#         #                self._config_parameters,
+#         #                self.args_yes)
+# #
+#         #            # Write AST tree to source code file
+#         #            # overwriting the original(!) # BUG
+#         #            # TODO: Instead of overwriting the source code
+#         #            # write the ast tree to a temp file and later
+#         #            # copy that file into the run_dir
+#         #            self.write_ast_to_source(ast_tree)
+# #
+#         #        # Merge the two lists and return
+#         #        # (overwriting sourcecode defaults)
+#         #        return {x["key"]: x for x in
+#         #                source_parameters + self._config_parameters}
+#                          .values()
+#         #    else:
+#         #        # Return parameters from source code
+#         #        return parameters.get_parameters_from_source(source)
+#         #else:
+#         #    cli.error("No 'main' key is defined for operation: '{}'"
+#         #              .format(self._op_name))
+#
+#     def write_ast_to_source(self, tree):
+#         ast_source = astor.to_source(tree)
+#
+#         main_entry = self._op_config.get("main")
+#         source = os.path.abspath(main_entry)
+#
+#         f = open(source, "w")
+#         f.write(ast_source)
+#         f.close()
+#
 
     def _cleanup(self):
         assert self._run is not None
@@ -352,66 +419,67 @@ class Operation():
         self._proc = None
         self._exit_status = None
 
-    def _init_digest(self):
-        digest = filelib.files_digest(self._run.tracker_path("sourcecode"))
-        self._run.write_attr("sourcecode_digest", digest)
-
-    def _python_exe(self):
-        """ Checks if the 'environment' key is
-            set in the experiment configuration
-            and returns the path to the python3
-            binary
-
-        Returns:
-            str -- path to python executable
-        """
-        if self._env_config:
-            if "virtualenv" in self._env_config.get("type"):
-                path = os.path.join(
-                    os.path.abspath(self._env_config.get("path")),
-                    "bin/python3"
-                )
-                return path
-            # Add another type of environment here.
-        return sys.executable
+#
+#     def _python_exe(self):
+#         """ Checks if the 'environment' key is
+#             set in the experiment configuration
+#             and returns the path to the python3
+#             binary
+#
+#         Returns:
+#             str -- path to python executable
+#         """
+#         if self._env_config:
+#             if "virtualenv" in self._env_config.get("type"):
+#                 path = os.path.join(
+#                     os.path.abspath(self._env_config.get("path")),
+#                     "bin/python3"
+#                 )
+#                 return path
+#             # Add another type of environment here.
+#         return sys.executable
+#
+#
 
 
 def _to_dict(dict_values):
     return {x["key"]: x["value"] for x in dict_values}
 
 
-def _init_cmd_env(gpus):
-    env = utils.safe_osenv()
-    env["LOG_LEVEL"] = _log_level()
-    env["CMD_DIR"] = os.getcwd()
-    if gpus is not None:
-        log.info(
-            "Limiting available GPUs (CUDA_VISIBLE_DEVICES) to: %s",
-            gpus or "<none>")
-        env["CUDA_VISIBLE_DEVICES"] = gpus
-    return env
-
-
-def _log_level():
-    try:
-        return os.environ["LOG_LEVEL"]
-    except KeyError:
-        return str(logging.getLogger().getEffectiveLevel())
-
-
-def _create_parameter_list(config_parameters):
-    return [{
-        "key": p,
-        "value": config_parameters[p].get("value")
-    } for p in config_parameters if config_parameters[p].get("value")]
-
-
-def _sort_resolved(resolved):
-    return {
-        name: sorted(files) for name, files in resolved.items()
-    }
-
-
+#
+#
+# def _init_cmd_env(gpus):
+#     env = utils.safe_osenv()
+#     env["LOG_LEVEL"] = _log_level()
+#     env["CMD_DIR"] = os.getcwd()
+#     if gpus is not None:
+#         log.info(
+#             "Limiting available GPUs (CUDA_VISIBLE_DEVICES) to: %s",
+#             gpus or "<none>")
+#         env["CUDA_VISIBLE_DEVICES"] = gpus
+#     return env
+#
+#
+# def _log_level():
+#     try:
+#         return os.environ["LOG_LEVEL"]
+#     except KeyError:
+#         return str(logging.getLogger().getEffectiveLevel())
+#
+#
+# def _create_parameter_list(config_parameters):
+#     return [{
+#         "key": p,
+#         "value": config_parameters[p].get("value")
+#     } for p in config_parameters if config_parameters[p].get("value")]
+#
+#
+# def _sort_resolved(resolved):
+#     return {
+#         name: sorted(files) for name, files in resolved.items()
+#     }
+#
+#
 """ Command
 """
 
