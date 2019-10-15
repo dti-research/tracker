@@ -17,3 +17,8 @@ def shlex_split(s):
     # https://bugs.python.org/issue27775)
     s = s or ""
     return shlex.split(s)
+
+
+def shlex_quotes(s):
+    s = s or ""
+    return shlex.quote(s)

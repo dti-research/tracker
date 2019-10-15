@@ -14,7 +14,7 @@ import click
 from tracker.utils import click_utils
 
 from .experiment_create import create
-from .experiment_run import run
+# from .experiment_run import run
 
 
 @click.group(cls=click_utils.Group)
@@ -30,4 +30,4 @@ def _params_specified(kw):
 
 
 experiment.add_command(create)
-experiment.add_command(run)
+# experiment.add_command(run)

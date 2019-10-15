@@ -36,9 +36,8 @@ def _get_all_trials():
     run_ids = []
 
     for exp in experiments:
-        # runs_dir = pathlib.experiment_runs_dir(exp)
-        runs_dir = ("/home/nily/Workspace/ml-template-ws/examples"
-                    "/fashion_mnist/env/.tracker/experiments/" + exp)  # HACK!
+        # Will always return tracker home on host machine!
+        runs_dir = pathlib.experiment_runs_dir(exp)
         run_ids.extend(pathlib.get_immediate_subdirectories(runs_dir))
 
     return [run_id[:8] for run_id in run_ids]

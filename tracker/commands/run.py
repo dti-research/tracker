@@ -25,7 +25,6 @@ from tracker.utils import path as pathlib
 
 log = logging.getLogger(__name__)
 
-
 DEFAULT_EXE = "docker-compose up"
 DEFAULT_OP = "train"
 
@@ -48,11 +47,10 @@ def run_params(fn):
         click.Option(
             ("--gpus",), metavar="DEVICES",
             help=("Limit availabe GPUs to DEVICES, a comma separated list of "
-                  "device IDs. By default all GPUs are available. Cannot be"
-                  "used with --no-gpus.")),
-        click.Option(
-            ("--no-gpus",), is_flag=True,
-            help="Disable GPUs for run. Cannot be used with --gpu."),
+                  "device IDs. By default no GPUs are available.")),
+        # click.Option(
+        #     ("--no-gpus",), is_flag=True,
+        #     help="Disable GPUs for run. Cannot be used with --gpu."),
         click.Option(
             ("--optimizer",), metavar="ALGORITHM",
             help=(
@@ -138,16 +136,20 @@ def run(ctx, args):
 
 def _run(args, op):
     cmd = ""
-#    remote=None
-#
-#    # Generate command
-#    if args.remote:
-#        remote = remotelib.remote_for_args(args)
-#        cmd += _remote_cmd(remote)
 
-    cmd += DEFAULT_EXE
-
-    log.debug("Running operation with: \"{}\"".format(cmd))
+    if args.gpus:
+        log.warning(
+            "Docker-Compose does not currently support the use of the "
+            "new nvidia-docker interface.\n"
+            "                              Falling back to using "
+            "`docker run ...`. Please note that if you've more than a single "
+            "environment, those will not be run!\n"
+            "                              See: "
+            "https://github.com/docker/compose/issues/6691 for current state."
+        )
+        cmd += "docker run"
+    else:
+        cmd += DEFAULT_EXE
 
     op.run(
         cmd,
@@ -230,12 +232,9 @@ def _op_remote(args):
 
 
 def _op_gpus(args):
-    assert not (args.no_gpus and args.gpus)
-    if args.no_gpus:
-        return ""
-    elif args.gpus is not None:
+    if args.gpus is not None:
         return args.gpus
-    return None  # use all available (default)
+    return None  # use no gpus (default)
 
 
 """ Run confirmation prompt
@@ -269,6 +268,9 @@ def _format_operation(op):
 
 
 def _format_parameters(parameters):
+    if not parameters:
+        return ""
+
     return "\n".join([
         "   {}: {}".format(
             p,

@@ -9,11 +9,16 @@
 """Contains template class for remote types.
 """
 
+import logging
+
 import click
 
 from tracker.utils import cli
 from tracker.utils import click_utils
 from tracker.utils import config
+
+
+log = logging.getLogger(__name__)
 
 
 class NoSuchRemote(ValueError):
@@ -201,11 +206,18 @@ def for_name(name):
     try:
         remote = remotes[name]
     except KeyError:
-        raise NoSuchRemote(name)
+        log.debug(
+            "No remote with name: '{}'. Trying to resolve as IP address"
+            .format(name))
+        remote_config = _resolve_remote_config_from_ip(name)
+        name = "temp-remote"
+
+        if not remote_config:
+            raise NoSuchRemote(name)
     else:
         remote_config = RemoteConfig(remote)
-        remote_type = remote_config["type"]
-        return _for_type(remote_type, name, remote_config)
+    remote_type = remote_config["type"]
+    return _for_type(remote_type, name, remote_config)
 
 
 def _for_type(remote_type, name, config):
@@ -216,3 +228,24 @@ def _for_type(remote_type, name, config):
         raise UnsupportedRemoteType(remote_type)
     remote = cls(name, config)
     return remote
+
+
+def _resolve_remote_config_from_ip(remote_arg):
+    import re
+    ip_address = re.findall(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}", remote_arg)
+
+    if not ip_address:
+        return None
+
+    remote_config = {
+        "host": ip_address[-1],
+        "type": "ssh"
+    }
+    if "@" in remote_arg:
+        remote_config["user"] = remote_arg.split("@")[0]
+    else:
+        log.warn(
+            "No user were specified in the ip address for the remote. "
+            "Using active user on host.")
+
+    return remote_config

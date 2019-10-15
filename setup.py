@@ -29,6 +29,7 @@ requirements = [
     'uuid',
     'astor>=0.8.0',
     'werkzeug>=0.15.6',
+    'daemonize',
 ]
 
 setup(

@@ -62,6 +62,7 @@ class Operation():
         self.parameters = self._get_parameter_config()
         self.remote = remote or None
         self.cmd = None
+        self.run_cmd = None
         self._gpus = gpus
         self._started = None
         self._stopped = None
@@ -176,46 +177,68 @@ class Operation():
 
     def _init_environments(self):
         """ Workflow:
-             - Read user config
+             - Generate command to be run within the container
+             - Check if gpus are requested by user
              - Create docker-compose.yaml file locally in run_dir
              - If remote, push docker-compose file to remote
              - If mount volume, copy that folder to run_dir
         """
-        # self._run.tracker_path("sourcecode")
-        # docker_compose_file = 'docker-compose.yaml'
 
-        command = self._command()
-        log.debug(command)
-
-        # for env in self.environments:
-
-        print(self.environments)
-
-        # Copy file to remote
-        if self.remote:
-            src = './docker-compose.yaml'  # HACK
-            host = '/home/dti/'
-            self.remote.copy_src_to_host(src, host)
+        # Check if user requested the use of GPUs
+        if self._gpus:
+            assert "run" in self.cmd
+            self.cmd += " " + self._container_args()
+            self.cmd += " " + self.environments[0].get("image")
+            self.cmd += " " + self._run_command()
+            # self.run_cmd = self._run_command()
+            # log.debug(self.run_cmd)
+            # self.cmd += " " + self.run_cmd
         else:
-            #   -> Currently just a HACK to see if its running
-            dest = self._run.path
-            src = './docker-compose.yaml'
-            import shutil
-            shutil.copyfile(src, os.path.join(dest, "docker-compose.yaml"))
+            # for env in self.environments:
+            print(self.environments)
 
-    def _command(self):
-        return "./{exec} {args}".format(
-            exec=self.operation_config.get("executable"),
-            args=self._args()
+            # Copy file to remote
+            if self.remote:
+                src = './docker-compose.yaml'  # HACK
+                host = '/home/dti/'
+                self.remote.copy_src_to_host(src, host)
+            else:
+                # Delete the following when generation of docker file is ready.
+                #   -> Currently just a HACK to see if its running
+                dest = self._run.path
+                src = './docker-compose.yaml'
+                import shutil
+                shutil.copyfile(src, os.path.join(dest, "docker-compose.yaml"))
+
+    def _container_args(self):
+        return "{gpu_arg} {volume_arg}".format(
+            gpu_arg="--gpus {}".format(self._gpus) if self._gpus else "",
+            # HACK: Works only on local
+            volume_arg="-v {}:/code -w /code".format(os.getcwd()),
         )
 
-    def _args(self):
-        return " ".join([
-            "--{arg_name} {arg_value}".format(
-                arg_name=p,
-                arg_value=self.parameters[p].get("value"))
-            for p in sorted(self.parameters)
-        ])
+    def _run_command(self):
+        return "{exec} {args}".format(
+            exec=self._run_executable(),
+            args=self._run_parameters()
+        )
+
+    def _run_executable(self):
+        exe = self.operation_config.get("executable")
+        if self.remote:
+            exe = escape_quotes(exe)
+        return exe
+
+    def _run_parameters(self):
+        if self.parameters:
+            return " ".join([
+                "--{arg_name} {arg_value}".format(
+                    arg_name=p,
+                    arg_value=self.parameters[p].get("value"))
+                for p in sorted(self.parameters)
+            ])
+        else:
+            return ""
 
     def _init_digest(self):
         digest = filelib.files_digest(self._run.tracker_path("sourcecode"))
@@ -412,6 +435,7 @@ class Operation():
 
     def _cleanup(self):
         assert self._run is not None
+        self.cmd = None
         self._config_parameters = None
         self._started = None
         self._stopped = None
@@ -488,6 +512,10 @@ def split_cmd(main):
     if isinstance(main, list):
         return main
     return command.shlex_split(main or "")
+
+
+def escape_quotes(s):
+    return command.shlex_quotes(s)
 
 
 """ Mutex for process control
