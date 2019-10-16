@@ -104,52 +104,6 @@ class Operation():
         else:
             self.cmd = cmd
 
-#     def run(self, background):
-#         self._init_run(self._run_dir)
-#
-#         # Check if we should initialise environment
-#         # if self._env_config:
-#         #    self._init_env()
-#
-#         # Start the process
-#         self._started = timestamp.timestamp()
-#         self._run.write_attr("started", self._started)
-#         try:
-#            self.resolve_resources()
-#            return self.proc(background)
-#         finally:
-#             self._cleanup()
-#
-#     def _init_env(self):
-#         if "virtualenv" in self._env_config.get("type"):
-#             cmds = self._env_cmds()
-#
-#             # Extend commands with the ones specified by user
-#             cmds.extend(
-#                 python.user_install_cmd(self._env_config.get("init")))
-#
-#             print(cmds)
-#
-#             for c in cmds:
-#                 cmd = split_cmd(c)
-#                 print(cmd)
-#                 try:
-#                     subprocess.Popen(cmd)
-#                 except OSError as e:
-#                     raise ProcessError(e)
-#
-#     def _env_cmds(self):
-#         env_dir = self._env_config.get("path")
-#         env_run_dir = os.path.join(self.run_dir, env_dir)
-#         return [
-#             python.upgrade_pip(),
-#             python.install_virtualenv(),
-#             python.delete_env(env_run_dir),
-#             "mkdir -p {}".format(env_run_dir),
-#             python.init_virtualenv(env_run_dir),
-#             python.activate_env(env_run_dir)
-#         ]
-#
     def _init_run(self, run_dir):
         if not run_dir:
             exp_name = self.experiment_config.get("experiment")
@@ -165,6 +119,7 @@ class Operation():
 
         self._run.init_skeleton()
         self._init_attrs()
+        self._copy_sourcecode()
         self._init_environments()
         self._init_digest()
 
@@ -187,14 +142,14 @@ class Operation():
         # Check if user requested the use of GPUs
         if self._gpus:
             assert "run" in self.cmd
-            self.cmd += " " + self._container_args()
-            self.cmd += " " + self.environments[0].get("image")
-            self.cmd += " " + self._run_command()
-            # self.run_cmd = self._run_command()
-            # log.debug(self.run_cmd)
-            # self.cmd += " " + self.run_cmd
+            self.cmd += " " + self._container_args() \
+                + " " + self.environments[0].get("image") \
+                + " " + self._run_command()
         else:
+            # Generate docker-compose file
+
             # for env in self.environments:
+            print(self.cmd)
             print(self.environments)
 
             # Copy file to remote
@@ -214,6 +169,7 @@ class Operation():
         return "{gpu_arg} {volume_arg}".format(
             gpu_arg="--gpus {}".format(self._gpus) if self._gpus else "",
             # HACK: Works only on local
+            # -> Replace os.getcwd() with run-dir
             volume_arg="-v {}:/code -w /code".format(os.getcwd()),
         )
 
@@ -288,6 +244,7 @@ class Operation():
         cwd = self._run.path
 
         log.debug("Starting new process with: '{}'".format(args))
+        self._run.write_attr("cmd", self.cmd, raw=True)
 
         try:
             proc = subprocess.Popen(
@@ -344,6 +301,16 @@ class Operation():
             return
         self._run.write_attr("exit_status", self._exit_status)
         self._run.write_attr("stopped", self._stopped)
+
+    def _cleanup(self):
+        assert self._run is not None
+        self.cmd = None
+        self._config_parameters = None
+        self._started = None
+        self._stopped = None
+        self._run = None
+        self._proc = None
+        self._exit_status = None
 #
 #     def _proc_env(self):
 #         assert self._run is not None
@@ -353,27 +320,35 @@ class Operation():
 #         utils.check_env(env)
 #         return env
 #
-#     def _copy_sourcecode(self):
-#         assert self._run is not None
-#
-#         log.debug(
-#            "Copying source code files for run {}".format(self._run.id))
-#
-#         # Output dir (destination) of the sourcecode
-#         dest = self._run.tracker_path("sourcecode")
-#
-#         # Get root of sourcecode
-#         root = os.path.dirname(os.path.abspath(self._op_config.get("main")))
-#
-#         # Select files to copy
-#         rules = (
-#             filelib.base_sourcecode_select_rules()
-#         )
-#         select = filelib.FileSelect(root, rules)
-#
-#         # Copy the files
-#         log.debug("Copy from: '{}' to: '{}'".format(root, dest))
-#         filelib.copytree(dest, select, root)
+
+    def _copy_sourcecode(self):
+        assert self._run is not None
+
+        exe = self.operation_config.get("executable")
+
+        log.debug(
+            "Verifying that file mode bits for the executable '{}' is set"
+            .format(exe))
+        filelib.chmod_plus_x(exe)  # -rwxr-xr-x
+
+        log.debug(
+            "Copying source code files for run {}".format(self._run.id))
+
+        # Output dir (destination) of the sourcecode
+        dest = self._run.tracker_path("sourcecode")
+
+        # Get root of sourcecode
+        root = os.path.dirname(os.path.abspath(exe))
+
+        # Select files to copy
+        rules = (
+            filelib.base_sourcecode_select_rules()
+        )
+        select = filelib.FileSelect(root, rules)
+
+        # Copy the files
+        log.debug("Copy from: '{}' to: '{}'".format(root, dest))
+        filelib.copytree(dest, select, root)
 #
 #     def _init_parameters(self):
 #         return self._op_config.get("parameters")
@@ -433,15 +408,52 @@ class Operation():
 #         f.close()
 #
 
-    def _cleanup(self):
-        assert self._run is not None
-        self.cmd = None
-        self._config_parameters = None
-        self._started = None
-        self._stopped = None
-        self._run = None
-        self._proc = None
-        self._exit_status = None
+#     def run(self, background):
+#         self._init_run(self._run_dir)
+#
+#         # Check if we should initialise environment
+#         # if self._env_config:
+#         #    self._init_env()
+#
+#         # Start the process
+#         self._started = timestamp.timestamp()
+#         self._run.write_attr("started", self._started)
+#         try:
+#            self.resolve_resources()
+#            return self.proc(background)
+#         finally:
+#             self._cleanup()
+#
+#     def _init_env(self):
+#         if "virtualenv" in self._env_config.get("type"):
+#             cmds = self._env_cmds()
+#
+#             # Extend commands with the ones specified by user
+#             cmds.extend(
+#                 python.user_install_cmd(self._env_config.get("init")))
+#
+#             print(cmds)
+#
+#             for c in cmds:
+#                 cmd = split_cmd(c)
+#                 print(cmd)
+#                 try:
+#                     subprocess.Popen(cmd)
+#                 except OSError as e:
+#                     raise ProcessError(e)
+#
+#     def _env_cmds(self):
+#         env_dir = self._env_config.get("path")
+#         env_run_dir = os.path.join(self.run_dir, env_dir)
+#         return [
+#             python.upgrade_pip(),
+#             python.install_virtualenv(),
+#             python.delete_env(env_run_dir),
+#             "mkdir -p {}".format(env_run_dir),
+#             python.init_virtualenv(env_run_dir),
+#             python.activate_env(env_run_dir)
+#         ]
+#
 
 #
 #     def _python_exe(self):

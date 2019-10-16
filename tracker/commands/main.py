@@ -28,6 +28,7 @@ from .remote import remote
 from .remotes import remotes
 from .rm import rm
 from .run import run
+from .watch import watch
 
 try:
     _home = os.environ["VIRTUAL_ENV"]
@@ -100,3 +101,4 @@ main.add_command(remote)
 main.add_command(remotes)
 main.add_command(rm)
 main.add_command(run)
+main.add_command(watch)

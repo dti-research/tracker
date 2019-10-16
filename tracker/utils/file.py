@@ -508,3 +508,25 @@ def _apply_dir_glob(root, pattern):
     if os.path.isdir(os.path.join(root, pattern)):
         pattern = os.path.join(pattern, "*")
     return pattern
+
+
+def get_umask():
+    umask = os.umask(0)
+    os.umask(umask)
+    return umask
+
+
+def chmod_plus_x(path):
+    import stat
+    os.chmod(
+        path,
+        os.stat(path).st_mode
+        | (
+            (
+                stat.S_IXUSR
+                | stat.S_IXGRP
+                | stat.S_IXOTH
+            )
+            & ~get_umask()
+        )
+    )

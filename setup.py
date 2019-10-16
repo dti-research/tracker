@@ -30,6 +30,7 @@ requirements = [
     'astor>=0.8.0',
     'werkzeug>=0.15.6',
     'daemonize',
+    'psutil>=5.6.3',
 ]
 
 setup(

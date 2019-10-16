@@ -83,3 +83,20 @@ def rm_temp_dir(path):
 def get_immediate_subdirectories(path):
     return [name for name in os.listdir(path)
             if os.path.isdir(os.path.join(path, name))]
+
+
+# def iter_run_dirs(root=None):
+#    return _iter_dirs(root or path("runs"))
+
+def iter_dirs(root):
+    return _iter_dirs(root)
+
+
+def _iter_dirs(root):
+    try:
+        names = os.listdir(root)
+    except OSError:
+        names = []
+    for name in names:
+        path = os.path.join(root, name)
+        yield name, path
