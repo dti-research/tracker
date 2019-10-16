@@ -13,6 +13,7 @@ import subprocess
 import time
 
 # import astor
+import ruamel.yaml as yaml
 
 # from tracker import parameters
 # from tracker import resources
@@ -29,6 +30,8 @@ from tracker.utils import utils
 log = logging.getLogger(__name__)
 
 PROC_TERM_TIMEOUT_SECONDS = 30
+
+DEFAULT_DOCKER_COMPOSE_V = "3.7"
 
 # DEFAULT_EXEC = "{python} -um tracker.operation_main {main}"
 
@@ -61,6 +64,8 @@ class Operation():
         self.environments = self._get_environtment_config()
         self.parameters = self._get_parameter_config()
         self.remote = remote or None
+        self.remote_run_dir = None
+        self.remote_sourcecode_dir = None
         self.cmd = None
         self.run_cmd = None
         self._gpus = gpus
@@ -119,8 +124,19 @@ class Operation():
 
         self._run.init_skeleton()
         self._init_attrs()
+        # Copy source code from local project to local run dir
         self._copy_sourcecode()
+
+        if self.remote:
+            self._init_remote()
+            self._copy_sourcecode_to_remote()
+
+        # if not self._gpus:
+        #    self._create_docker_compose_file()
+        # TODO: Copy docker-compose file to remote if any
+
         self._init_environments()
+
         self._init_digest()
 
     def _init_attrs(self):
@@ -130,57 +146,128 @@ class Operation():
         self._run.write_attr("parameters", self.parameters)
         self._run.write_attr("cmd", self.cmd)
 
+    def _copy_sourcecode(self):
+        assert self._run is not None
+
+        log.debug(
+            "Copying source code files for run {}".format(self._run.id))
+
+        for env in self.environments:
+            exe = env.get("executable")
+
+            log.debug("   Env: {}".format(env.get("name")))
+
+            # Output dir (destination) of the sourcecode
+            dest = self._run.tracker_path("sourcecode")
+
+            # Get root of sourcecode
+            root = os.path.dirname(os.path.abspath(exe))
+
+            # Select files to copy
+            rules = (
+                filelib.base_sourcecode_select_rules()
+            )
+            select = filelib.FileSelect(root, rules)
+
+            # Copy the files
+            log.debug("Copy from: '{}' to: '{}'".format(root, dest))
+            filelib.copytree(dest, select, root)
+
+    def _init_remote(self):
+        assert self._run is not None
+
+        # Declare remote run dir
+        self.remote_run_dir = os.path.join(
+            self.remote.abs_tracker_home(), self._run.id)
+
+    def _create_docker_compose_file(self):
+        # Generate docker-compose file
+        log.warn(
+            "Be Advised!"
+            "Generating the docker-compose file is filled with hacks")
+        compose_file = os.path.join(self._run.dir, 'docker-compose.yaml')
+        compose_config = {
+            "version": DEFAULT_DOCKER_COMPOSE_V,
+            "services": {
+                env.get("name"): {
+                    "image": env.get("image"),
+                    "command": "./" + self._run_command(
+                        os.path.join(*env.get("executable").split("/")[1:])),
+                    "working_dir": "/src/",
+                    "volumes": [{
+                        "type": "bind",
+                        "source": "./.tracker/sourcecode",
+                        "target": "/src/"}]
+                }
+                for env in self.environments
+            },
+            "volumes": {
+                "sourcecode": None
+            }
+        }
+        log.debug(compose_config)
+
+        # Write the docker-compose file to the run-dir
+        _write(compose_file, compose_config)
+
+    def _copy_sourcecode_to_remote(self):
+        assert self._run is not None
+
+        # Copy source code to remote run directory
+        src = self._run.tracker_path("sourcecode")
+        self.remote.copy_src_to_host(src, self.remote_run_dir)
+
+        # Store path to sourcecode directory
+        self.remote_sourcecode_dir = os.path.join(
+            self.remote_run_dir, "sourcecode")
+
     def _init_environments(self):
-        """ Workflow:
-             - Generate command to be run within the container
-             - Check if gpus are requested by user
-             - Create docker-compose.yaml file locally in run_dir
-             - If remote, push docker-compose file to remote
-             - If mount volume, copy that folder to run_dir
-        """
+        assert self._run is not None
+
+        log.debug(
+            "Verifying that file mode bits for the executables is set to "
+            "be executable.")
+
+        for env in self.environments:
+            # Remove first folder of path to executable as it is not
+            # copied to the mount point
+            exe = os.path.join(*env.get("executable").split("/")[1:])
+            filelib.chmod_plus_x(  # -rwxr-xr-x
+                os.path.join(
+                    self._run.tracker_path("sourcecode"),
+                    exe)
+            )
 
         # Check if user requested the use of GPUs
         if self._gpus:
             assert "run" in self.cmd
             self.cmd += " " + self._container_args() \
                 + " " + self.environments[0].get("image") \
-                + " " + self._run_command()
+                + " ./" + self._run_command(
+                    os.path.join(
+                        *self.environments[0].get("executable")
+                        .split("/")[1:]))
         else:
             # Generate docker-compose file
-
-            # for env in self.environments:
-            print(self.cmd)
-            print(self.environments)
-
-            # Copy file to remote
-            if self.remote:
-                src = './docker-compose.yaml'  # HACK
-                host = '/home/dti/'
-                self.remote.copy_src_to_host(src, host)
-            else:
-                # Delete the following when generation of docker file is ready.
-                #   -> Currently just a HACK to see if its running
-                dest = self._run.path
-                src = './docker-compose.yaml'
-                import shutil
-                shutil.copyfile(src, os.path.join(dest, "docker-compose.yaml"))
+            log.warn("Be Advised! Docker-compose is not currently supported")
+            raise NotImplementedError
 
     def _container_args(self):
         return "{gpu_arg} {volume_arg}".format(
             gpu_arg="--gpus {}".format(self._gpus) if self._gpus else "",
-            # HACK: Works only on local
-            # -> Replace os.getcwd() with run-dir
-            volume_arg="-v {}:/code -w /code".format(os.getcwd()),
+            volume_arg="-v {}:/code -w /code".format(
+                self.remote_sourcecode_dir
+                or self._run.tracker_path("sourcecode")
+            ),
         )
 
-    def _run_command(self):
+    def _run_command(self, executable):
         return "{exec} {args}".format(
-            exec=self._run_executable(),
+            exec=self._run_executable(executable),
             args=self._run_parameters()
         )
 
-    def _run_executable(self):
-        exe = self.operation_config.get("executable")
+    def _run_executable(self, exe):
         if self.remote:
             exe = escape_quotes(exe)
         return exe
@@ -305,6 +392,8 @@ class Operation():
     def _cleanup(self):
         assert self._run is not None
         self.cmd = None
+        self.remote_run_dir = None
+        self.remote_sourcecode_dir = None
         self._config_parameters = None
         self._started = None
         self._stopped = None
@@ -321,34 +410,7 @@ class Operation():
 #         return env
 #
 
-    def _copy_sourcecode(self):
-        assert self._run is not None
 
-        exe = self.operation_config.get("executable")
-
-        log.debug(
-            "Verifying that file mode bits for the executable '{}' is set"
-            .format(exe))
-        filelib.chmod_plus_x(exe)  # -rwxr-xr-x
-
-        log.debug(
-            "Copying source code files for run {}".format(self._run.id))
-
-        # Output dir (destination) of the sourcecode
-        dest = self._run.tracker_path("sourcecode")
-
-        # Get root of sourcecode
-        root = os.path.dirname(os.path.abspath(exe))
-
-        # Select files to copy
-        rules = (
-            filelib.base_sourcecode_select_rules()
-        )
-        select = filelib.FileSelect(root, rules)
-
-        # Copy the files
-        log.debug("Copy from: '{}' to: '{}'".format(root, dest))
-        filelib.copytree(dest, select, root)
 #
 #     def _init_parameters(self):
 #         return self._op_config.get("parameters")
@@ -476,6 +538,14 @@ class Operation():
 #         return sys.executable
 #
 #
+
+def _write(f, data):
+    try:
+        _f = open(f, "w")
+    except IOError:
+        raise KeyError
+    else:
+        return yaml.safe_dump(data, _f, default_flow_style=False)
 
 
 def _to_dict(dict_values):

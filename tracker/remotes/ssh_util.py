@@ -104,7 +104,9 @@ def rsync_copy_to(src,
                   port=None):
     dest = format_rsync_host_path(host, host_dest, user)
     cmd = (
-        ["rsync", "-vr"]
+        # chmod +x is a HACK for ensuring that the executables preserves
+        # executability
+        ["rsync", "-vrE", "--chmod=+x"]
         + rsync_ssh_opts(private_key, port)
         + [src, dest])
     log.debug("rsync cmd: %r", cmd)

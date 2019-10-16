@@ -124,8 +124,6 @@ def run(ctx, args):
         _op_remote(args),
         _op_gpus(args))
 
-    # Generate docker compose file
-
     # Prompt user to confirm run parameters
     if args.yes or _confirm_run(args, exp_name, op):
         for n in range(args.trials):
@@ -147,9 +145,9 @@ def _run(args, op):
             "                              See: "
             "https://github.com/docker/compose/issues/6691 for current state."
         )
-        cmd += "docker run"
-    else:
-        cmd += DEFAULT_EXE
+    cmd += "docker run"
+    # else:
+    #    cmd += DEFAULT_EXE
 
     op.run(
         cmd,
