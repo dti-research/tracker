@@ -16,7 +16,7 @@ import time
 import ruamel.yaml as yaml
 
 # from tracker import parameters
-# from tracker import resources
+from tracker import resources
 from tracker import run
 # from tracker.utils import cli
 from tracker.utils import command
@@ -63,6 +63,7 @@ class Operation():
         self.operation_config = self._get_operation_config()
         self.environments = self._get_environtment_config()
         self.parameters = self._get_parameter_config()
+        self.resources = self._get_resource_config()
         self.remote = remote or None
         self.remote_run_dir = None
         self.remote_sourcecode_dir = None
@@ -88,15 +89,30 @@ class Operation():
     def _get_parameter_config(self):
         return self.operation_config.get("parameters")
 
+    def _get_resource_config(self):
+        return self.operation_config.get("resources")
+
     def run(self, cmd, background):
         assert self.cmd is None
+        self._validate_executables()
         self._init_cmd(cmd)
         self._init_run(self._run_dir)
 
         try:
+            # TODO:
+            # self.resolve_resources()
             return self.proc(background)
         finally:
             self._cleanup()
+
+    def _validate_executables(self):
+        for env in self.environments:
+            if "/" not in env.get("executable"):
+                if not env.get("executable").startswith("./") \
+                        or not env.get("executable").startswith("/"):
+                    log.debug(
+                        "Prepending './' to '{}'".format(env["executable"]))
+                    env["executable"] = "./" + env["executable"]
 
     def _init_cmd(self, cmd):
         if self.remote:
@@ -135,8 +151,9 @@ class Operation():
         #    self._create_docker_compose_file()
         # TODO: Copy docker-compose file to remote if any
 
+        # Currently, this function creates the run command to be executed
+        # within the container (selects the first in the list)
         self._init_environments()
-
         self._init_digest()
 
     def _init_attrs(self):
@@ -154,8 +171,6 @@ class Operation():
 
         for env in self.environments:
             exe = env.get("executable")
-
-            log.debug("   Env: {}".format(env.get("name")))
 
             # Output dir (destination) of the sourcecode
             dest = self._run.tracker_path("sourcecode")
@@ -287,17 +302,17 @@ class Operation():
         digest = filelib.files_digest(self._run.tracker_path("sourcecode"))
         self._run.write_attr("sourcecode_digest", digest)
 
-#     def resolve_resources(self):
-#         assert self._run is not None
-#         if self._op_config.get("requires") is None:
-#             return
-#
-#         requires = self._op_config.get("requires")
-#         # It doesn't matter if it has one or multiple requirements
-#         resolved = resources.resolve(
-#             requires, self.resource_config.get(requires))
-#         self._run.write_attr("resources", _sort_resolved(resolved))
-#
+    def resolve_resources(self):
+        assert self._run is not None
+        if self.operation_config.get("requires") is None:
+            return
+
+        requires = self.operation_config.get("requires")
+        # It doesn't matter if it has one or multiple requirements
+        resolved = resources.resolve(
+            requires, self.resources.get(requires))
+        self._run.write_attr("resources", _sort_resolved(resolved))
+
     def proc(self, background=None):
         if background:
             self._background_proc(background)
@@ -548,8 +563,8 @@ def _write(f, data):
         return yaml.safe_dump(data, _f, default_flow_style=False)
 
 
-def _to_dict(dict_values):
-    return {x["key"]: x["value"] for x in dict_values}
+# def _to_dict(dict_values):
+#     return {x["key"]: x["value"] for x in dict_values}
 
 
 #
@@ -580,12 +595,10 @@ def _to_dict(dict_values):
 #     } for p in config_parameters if config_parameters[p].get("value")]
 #
 #
-# def _sort_resolved(resolved):
-#     return {
-#         name: sorted(files) for name, files in resolved.items()
-#     }
-#
-#
+def _sort_resolved(resolved):
+    return {name: sorted(files) for name, files in resolved.items()}
+
+
 """ Command
 """
 
