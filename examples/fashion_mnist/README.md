@@ -125,17 +125,23 @@ The resulting experiment configuration file will look similar to:
   description: Using Tracker to do good science!
   operations:
     train:
-      main: src/train.py
-      seed: 42            # [optional]
-      parameters:         # [optional]
+      parameters:
+        seed:
+          value: 42
         batch_size:
           description: Number of images pr. batch
-          default: 128
+          value: 128
         lr:
           description: Learning rate
           min: 1e-4
           max: 0.1
+          value: 0.001
         [...]
+      environments:
+        - tf:
+          image: tensorflow/tensorflow:2.0.0-gpu-py3
+          executable: src/train.py
+          [...]
 ```
 
 ## Running and Tracking Experiments
