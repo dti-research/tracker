@@ -155,8 +155,8 @@ tracker experiment run cnn_test:train --trials 32
 Let's just run a single trial
 
 ```bash
->>> tracker experiment run cnn_test:train
-You are about to run cnn_test:train 1 time:
+>>> tracker experiment run cnn_test:train --remote dti-ai-1
+You are about to run cnn_test:train on dti-ai-1 1 time:
   batch_size: 128
   dropout: 0.2
   epochs: 5
