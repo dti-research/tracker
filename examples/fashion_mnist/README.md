@@ -107,6 +107,12 @@ file by invoking:
 tracker experiment create cnn_test
 ```
 
+*or*
+
+```bash
+tracker experiment run EXECUTABLE_FILE:OPERATION_NAME parameters.seed.value=42 parameters.batch_size.value=42 [...]
+```
+
 where `cnn_test` could be any unique identifier for your experiment. Remember
 that you have to be at the root of the project when invoking this command. You
 can always do a `tracker ls` to see the list of Tracker projects and
