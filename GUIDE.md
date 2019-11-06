@@ -1,8 +1,26 @@
 ## Experiments
 
-Experiments are, like projects, defined in yaml configuration files. You can
-create your experiment files manually or invoke
-`tracker experiments create NAME`.
+Experiments are, like projects, defined in yaml configuration files, we denote such files; experiment configuration files (ECFs). To avoid having multiple similar ECFs (and thus avoiding cluttering your project) Tracker will store all attributes given for each trial conducted in the Tracker home folder. This means that you can do a lot of testing without having to worry about which file gave which result, these are automatically linked together in the Tracker home folder. When you want to share a specific trial with a colleague you can simply export it into a yaml file and send that.
+
+You can create your ECFs in one of three ways; (1) directly from a trial, (2) manually or (3) automatic extraction of parameters from Python files:
+
+#### 1. Direct creation of an ECF from starting a trial
+
+```
+tracker experiment run EXECUTABLE_FILE:OPERATION_NAME parameters.seed.value=42 parameters.batch_size.value=42 [...]
+```
+
+#### 2. Manually (before run)
+
+Fire up you favorite editor and start creating your ECFs.
+
+#### 3. Automatically through AST (iif code is Python)
+
+```
+tracker experiment create EXPERIMENT_NAME:OPERATION_NAME -f PYTHON_EXE_FILE
+```
+
+### Example ECF
 
 ```yaml
 - experiment: vgg16
