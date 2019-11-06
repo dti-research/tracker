@@ -125,6 +125,12 @@ Installation problems? Feature requests? General questions?
 * read through examples and API <a href="https://dti-tracker.readthedocs.io/en/latest/" target="_blank">documentation</a>
 * create github issues on the [Tracker project](https://github.com/dti-research/tracker)
 
+## Contributions
+
+We welcome contributions to Tracker by the community! Please refer to the [Contribution Guide](CONTRIBUTING.md).
+
+[![](https://sourcerer.io/fame/nily-dti/dti-research/tracker/images/0)](https://sourcerer.io/fame/nily-dti/dti-research/tracker/links/0)[![](https://sourcerer.io/fame/nily-dti/dti-research/tracker/images/1)](https://sourcerer.io/fame/nily-dti/dti-research/tracker/links/1)[![](https://sourcerer.io/fame/nily-dti/dti-research/tracker/images/2)](https://sourcerer.io/fame/nily-dti/dti-research/tracker/links/2)[![](https://sourcerer.io/fame/nily-dti/dti-research/tracker/images/3)](https://sourcerer.io/fame/nily-dti/dti-research/tracker/links/3)[![](https://sourcerer.io/fame/nily-dti/dti-research/tracker/images/4)](https://sourcerer.io/fame/nily-dti/dti-research/tracker/links/4)[![](https://sourcerer.io/fame/nily-dti/dti-research/tracker/images/5)](https://sourcerer.io/fame/nily-dti/dti-research/tracker/links/5)[![](https://sourcerer.io/fame/nily-dti/dti-research/tracker/images/6)](https://sourcerer.io/fame/nily-dti/dti-research/tracker/links/6)[![](https://sourcerer.io/fame/nily-dti/dti-research/tracker/images/7)](https://sourcerer.io/fame/nily-dti/dti-research/tracker/links/7)
+
 ## Acknowledgements
 
 This project is developed by the [DTI](https://www.dti.dk/) AI Research Team at Center for Robot Technology. [Nicolai Anton Lynnerup
