@@ -127,27 +127,61 @@ folder within your project.
 The resulting experiment configuration file will look similar to:
 
 ```yaml
-- experiment: cnn_test
+- experiment: pytorch-mnist
   description: Using Tracker to do good science!
   operations:
     train:
+      requires: train_data
       parameters:
-        seed:
-          value: 42
-        batch_size:
-          description: Number of images pr. batch
-          value: 128
+        batch-size:
+          value: 64
+        test-batch-size:
+          value: 1000
+        epochs:
+          value: 1
         lr:
           description: Learning rate
-          min: 1e-4
-          max: 0.1
-          value: 0.001
-        [...]
+          value: 0.01
+        momentum:
+          value: 0.5
+        seed:
+          description: Preset number (or list of numbers) to set for pseudo-random number generators
+          value: 42
+        log-interval:
+          value: 10
       environments:
-        - tf:
-          image: tensorflow/tensorflow:2.0.0-gpu-py3
-          executable: src/train.py
-          [...]
+        - name: pytorch
+          type: docker
+          image: pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime
+          executable: src/pytorch_train.py
+    test:
+      requires: test_data
+      parameters:
+        batch-size:
+          value: 128
+        seed:
+          description: Preset number (or list of numbers) to set for pseudo-random number generators
+          value: 42
+      environments:
+        - name: pytorch
+          type: docker
+          image: pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime
+          executable: src/pytorch_test.py
+  resources:
+    train_data:
+      sources:
+        - url: https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/GTSRB_Final_Training_Images.zip
+          select: GTSRB/Final_Training/Images/
+          output: data/raw
+    test_data:
+      sources:
+        - url: https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/GTSRB_Final_Test_GT.zip
+          select: GT-final_test.csv
+          output: data/raw
+        - url: https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/GTSRB_Final_Test_Images.zip
+          select: GTSRB/Final_Test/Images/
+          output: data/raw
+
 ```
 
 ## Running and Tracking Experiments
