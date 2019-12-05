@@ -11,6 +11,12 @@ Welcome to Tracker's documentation!
    :caption: Contents:
 
 
+Tracker Commands
+================
+.. click:: tracker.commands:remote
+   :prog: tracker
+   :show-nested:
+
 
 Indices and tables
 ==================

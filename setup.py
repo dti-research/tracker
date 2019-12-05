@@ -27,10 +27,11 @@ requirements = [
     'ruamel.yaml',
     'sh',
     'uuid',
-    'astor>=0.8.0',
-    'werkzeug>=0.15.6',
+    # 'astor>=0.8.0',
+    # 'werkzeug>=0.15.6',
     'daemonize',
     'psutil>=5.6.3',
+    'tabview>=1.4.3',
 ]
 
 setup(

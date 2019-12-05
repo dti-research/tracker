@@ -18,6 +18,7 @@ from tracker.utils import utils
 
 # Custom click commands
 from .cd import cd
+from .compare import compare
 from .create import create
 from .diff import diff
 from .experiment import experiment
@@ -56,7 +57,7 @@ DEFAULT_TRACKER_HOME = os.path.join(_home, ".tracker")
     "--cwd", metavar="PATH",
     help=(
         "Use PATH as current directory for referencing Tracker "
-        "files (tracker.yml)."),
+        "files (tracker.yaml)."),
     default="."
 )
 @click.option(
@@ -91,6 +92,7 @@ def main(args):
 
 
 main.add_command(cd)
+main.add_command(compare)
 main.add_command(create)
 main.add_command(diff)
 main.add_command(experiment)

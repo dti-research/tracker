@@ -247,14 +247,25 @@ class Operation():
             # Remove first folder of path to executable as it is not
             # copied to the mount point
             exe = os.path.join(*env.get("executable").split("/")[1:])
+            print(exe)
             filelib.chmod_plus_x(  # -rwxr-xr-x
                 os.path.join(
                     self._run.tracker_path("sourcecode"),
                     exe)
             )
 
-        # Check if user requested the use of GPUs
-        if self._gpus:
+        # Check if user has more than 1 env
+        if len(self.environments) > 1:
+            # Generate docker-compose file
+            if self._gpus:
+                log.warn(
+                    "Be Advised! Docker-compose is not currently supported "
+                    "with the use of GPUs!")
+                raise NotImplementedError
+            # TODO
+            raise NotImplementedError
+        else:
+            assert len(self.environments) == 1
             assert "run" in self.cmd
             self.cmd += " " + self._container_args() \
                 + " " + self.environments[0].get("image") \
@@ -262,10 +273,6 @@ class Operation():
                     os.path.join(
                         *self.environments[0].get("executable")
                         .split("/")[1:]))
-        else:
-            # Generate docker-compose file
-            log.warn("Be Advised! Docker-compose is not currently supported")
-            raise NotImplementedError
 
     def _container_args(self):
         return "{gpu_arg} {volume_arg}".format(

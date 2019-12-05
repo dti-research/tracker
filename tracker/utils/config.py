@@ -122,6 +122,10 @@ def get_remote_names(ctx, args, incomplete):
     return [k['name'] for k in get_remotes() if incomplete in k['name']]
 
 
+def set_log_output(flag):
+    globals()["_log_output"] = flag
+
+
 class _Config():
 
     def __init__(self, path):
