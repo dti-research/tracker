@@ -1,0 +1,5 @@
+projects:
+    - Fashion_MNIST:
+        path: /home/nily/Workspace/ml-template-ws/examples/fashion_mnist
+    - Fashion_MNIST_docker:
+        path: /home/nily/Workspace/ml-template-ws/examples/fashion_mnist_docker
