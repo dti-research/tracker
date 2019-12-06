@@ -199,14 +199,14 @@ The resulting experiment configuration file will look similar to:
 With a configured experiment, we can conduct (numerous) trials by invoking:
 
 ```bash
-tracker experiment run cnn_test:train --trials 32
+tracker experiment run tensorflow_cnn:train --trials 32
 ```
 
 Let's just run a single trial
 
 ```bash
->>> tracker experiment run cnn_test:train --remote dti-ai-1
-You are about to run cnn_test:train on dti-ai-1 1 time:
+>>> tracker experiment run tensorflow_cnn:train --remote dti-ai-1
+You are about to run tensorflow_cnn:train on dti-ai-1 1 time:
   batch_size: 128
   dropout: 0.2
   epochs: 5
@@ -229,7 +229,7 @@ A simple yet effective way to visualise your results are to list the trials
 conducted under a certain experiment by:
 
 ```bash
->>> tracker experiment runs cnn_test
+>>> tracker experiment runs tensorflow_cnn
 [...]
 ```
 
@@ -238,7 +238,7 @@ conducted under a certain experiment by:
 Let's conduct another trial with a different learning rate.
 
 ```bash
->>> tracker experiment run cnn_test:train lr=0.01
+>>> tracker experiment run tensorflow_cnn:train lr=0.01
 [...]
 ```
 
@@ -248,7 +248,7 @@ To gain more insight in what our two training processes ended up with we can
 compare them using:
 
 ```bash
-tracker experiment runs cnn_test --compare 
+tracker experiment runs tensorflow_cnn --compare 
 ```
 
 As you can see the second time we trained, the model is not performing well.
