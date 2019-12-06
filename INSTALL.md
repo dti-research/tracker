@@ -27,7 +27,13 @@ source ~/.bashrc
 
 ### For contributors
 
+Install developer dependencies
+
 ```bash
-# Install developer dependencies
 pip install -r requirements-dev.txt
+```
+After that install the pre-commit hooks
+
+```bash
+pre-commit install
 ```
