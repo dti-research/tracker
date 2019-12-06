@@ -35,6 +35,8 @@ Remember to change all the project specific keys to your needs. Tracker will
 create your new project from where it is called if you do not change
 `output_dir`.
 
+> **_NOTE:_**  If you did not created an empty repository you must delete the `'repo'` keay from the project configuration file.
+
 Invoke the tracker create command:
 
 ```bash
