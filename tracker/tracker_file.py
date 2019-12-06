@@ -30,6 +30,9 @@ class TrackerFile():
     def _read(self):
         try:
             f = open(self._tracker_file, "r")
+        except FileNotFoundError:
+            self._create_tracker_home_file()
+            self._read()
         except IOError:
             raise KeyError
         else:
@@ -64,6 +67,9 @@ class TrackerFile():
         Arguments:
             project {<dict>} -- project dictionary
         """
+        if self._data is None:
+            self._data = {}
+
         if "projects" not in self._data or self._data["projects"] is None:
             self._data["projects"] = []
 
@@ -88,3 +94,6 @@ class TrackerFile():
         self._data["projects"] = [
             d for d in self._data["projects"] if project_name not in d]
         self._write()
+    
+    def _create_tracker_home_file(self):
+        open(self._tracker_file, 'a').close()
