@@ -14,7 +14,7 @@
           value: 0.01
         lr_decay:
           description: Learning rate decay
-          value: 0.01
+          value: 0.0
         momentum:
           value: 0.5
         seed:
