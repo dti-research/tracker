@@ -137,7 +137,7 @@ model.fit(
 
 Now comes the time to conduct our first experiment using our small CNN on
 the Fashion-MNIST data set. We start by creating an experiment configuration
-file by invoking:
+file (ECF) by invoking:
 
 ```bash
 tracker experiment create cnn_test
@@ -149,7 +149,9 @@ tracker experiment create cnn_test
 tracker experiment run EXECUTABLE_FILE:OPERATION_NAME parameters.seed.value=42 parameters.batch_size.value=42 [...]
 ```
 
-where `cnn_test` could be any unique identifier for your experiment. Remember
+> **_BE ADVISED:_**  The above calls are not supported in the current version of Tracker! They will be released with the introduction of OmegaConf. The ECF for this example can be downloaded from [here](https://github.com/dti-research/tracker/blob/master/examples/fashion_mnist/experiment_file_example.yaml).
+
+In the ECF, `cnn_test` could be any unique identifier for your experiment. Remember
 that you have to be at the root of the project when invoking this command. You
 can always do a `tracker ls` to see the list of Tracker projects and
 subsequently a `tracker cd PROJ_NAME` to cd into the project directory.
@@ -163,11 +165,10 @@ folder within your project.
 The resulting experiment configuration file will look similar to:
 
 ```yaml
-- experiment: pytorch-mnist
+- experiment: tensorflow_cnn
   description: Using Tracker to do good science!
   operations:
     train:
-      requires: train_data
       parameters:
         batch-size:
           value: 64
@@ -178,46 +179,19 @@ The resulting experiment configuration file will look similar to:
         lr:
           description: Learning rate
           value: 0.01
+        lr_decay:
+          description: Learning rate decay
+          value: 0.01
         momentum:
           value: 0.5
         seed:
           description: Preset number (or list of numbers) to set for pseudo-random number generators
           value: 42
-        log-interval:
-          value: 10
       environments:
-        - name: pytorch
+        - name: tf
           type: docker
-          image: pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime
-          executable: src/pytorch_train.py
-    test:
-      requires: test_data
-      parameters:
-        batch-size:
-          value: 128
-        seed:
-          description: Preset number (or list of numbers) to set for pseudo-random number generators
-          value: 42
-      environments:
-        - name: pytorch
-          type: docker
-          image: pytorch/pytorch:1.3-cuda10.1-cudnn7-runtime
-          executable: src/pytorch_test.py
-  resources:
-    train_data:
-      sources:
-        - url: https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/GTSRB_Final_Training_Images.zip
-          select: GTSRB/Final_Training/Images/
-          output: data/raw
-    test_data:
-      sources:
-        - url: https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/GTSRB_Final_Test_GT.zip
-          select: GT-final_test.csv
-          output: data/raw
-        - url: https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/GTSRB_Final_Test_Images.zip
-          select: GTSRB/Final_Test/Images/
-          output: data/raw
-
+          image: tensorflow/tensorflow:2.0.0-py3
+          executable: src/train.py
 ```
 
 ## Running and Tracking Experiments
