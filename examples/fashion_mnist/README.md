@@ -140,7 +140,7 @@ the Fashion-MNIST data set. We start by creating an experiment configuration
 file (ECF) by invoking:
 
 ```bash
-tracker experiment create cnn_test
+tracker experiment create tensorflow_cnn
 ```
 
 *or*
@@ -151,7 +151,7 @@ tracker experiment run EXECUTABLE_FILE:OPERATION_NAME parameters.seed.value=42 p
 
 > **_BE ADVISED:_**  The above calls are not supported in the current version of Tracker! They will be released with the introduction of OmegaConf. The ECF for this example can be downloaded from [here](https://github.com/dti-research/tracker/blob/master/examples/fashion_mnist/experiment_file_example.yaml).
 
-In the ECF, `cnn_test` could be any unique identifier for your experiment. Remember
+In the ECF, `tensorflow_cnn` could be any unique identifier for your experiment. Remember
 that you have to be at the root of the project when invoking this command. You
 can always do a `tracker ls` to see the list of Tracker projects and
 subsequently a `tracker cd PROJ_NAME` to cd into the project directory.
@@ -181,7 +181,7 @@ The resulting experiment configuration file will look similar to:
           value: 0.01
         lr_decay:
           description: Learning rate decay
-          value: 0.01
+          value: 0.0
         momentum:
           value: 0.5
         seed:
@@ -258,9 +258,9 @@ a lack of structure or pure enthusiasm leads us to forget what we just did.
 Luckily we can see what the differences are between the two trials:
 
 ```bash
->>> tracker experiment runs cnn_test --diff
---- ~/.tracker/experiments/cnn_test/1ba7220d73ae47729cc3221785f5e7fe/.tracker/attrs/parameters
-+++ ~/.tracker/experiments/cnn_test/925f38e44bce11e98af6c85b764bbf34/.tracker/attrs/parameters
+>>> tracker experiment runs tensorflow_cnn --diff
+--- ~/.tracker/experiments/tensorflow_cnn/1ba7220d73ae47729cc3221785f5e7fe/.tracker/attrs/parameters
++++ ~/.tracker/experiments/tensorflow_cnn/925f38e44bce11e98af6c85b764bbf34/.tracker/attrs/parameters
 @@ -1,5 +1,5 @@
  batch_size: 128
  dropout: 0.2
