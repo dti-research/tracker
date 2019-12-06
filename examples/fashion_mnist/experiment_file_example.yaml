@@ -1,37 +1,27 @@
-- experiment: cnn_test
+- experiment: tensorflow_cnn
   description: Using Tracker to do good science!
   operations:
     train:
-      main: src/train.py
-      requires: test_data
-      seed: 42
       parameters:
-        drop_out:
-          description: Probability of dropping nodes in the neural net (dropout rate, NOT keep probability)
-          min: 0.0
-          max: 1.0
-          value: 0.2
-        batch_size:
-          description: Number of images pr. batch
+        batch-size:
           value: 64
+        test-batch-size:
+          value: 1000
+        epochs:
+          value: 1
         lr:
           description: Learning rate
-          min: 1e-4
-          max: 0.1
-          value: 0.02
-        epoch:
-          value: 5
-  resources:
-    train_data:
-      sources:
-        - url: https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/GTSRB_Final_Training_Images.zip
-          select: GTSRB/Final_Training/Images/
-          output: data/raw
-    test_data:
-      sources:
-        - url: https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/GTSRB_Final_Test_GT.zip
-          select: GT-final_test.csv
-          output: data/raw
-        - url: https://sid.erda.dk/public/archives/daaeac0d7ce1152aea9b61d9f1e19370/GTSRB_Final_Test_Images.zip
-          select: GTSRB/Final_Test/Images/
-          output: data/raw
+          value: 0.01
+        lr_decay:
+          description: Learning rate decay
+          value: 0.01
+        momentum:
+          value: 0.5
+        seed:
+          description: Preset number (or list of numbers) to set for pseudo-random number generators
+          value: 42
+      environments:
+        - name: tf
+          type: docker
+          image: tensorflow/tensorflow:2.0.0-py3
+          executable: src/train.py
