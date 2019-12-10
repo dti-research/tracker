@@ -38,7 +38,13 @@ After that install the pre-commit hooks
 pre-commit install
 ```
 
-# Installing NVIDIA Drivers
+# Installing System Dependencies
+
+## Docker
+
+Refer to the official install guide: https://docs.docker.com/install/linux/docker-ce/ubuntu/
+
+## NVIDIA Drivers (Optional, required for GPU)
 
 ```bash
 # Add PPA
