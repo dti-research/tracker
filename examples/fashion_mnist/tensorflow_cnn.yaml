@@ -3,20 +3,19 @@
   operations:
     train:
       parameters:
-        batch-size:
+        batch_size:
           value: 64
-        test-batch-size:
-          value: 1000
         epochs:
           value: 1
+        dropout:
+          description: The probability that a node will be dropped
+          value: 0.2
         lr:
           description: Learning rate
           value: 0.01
         lr_decay:
           description: Learning rate decay
           value: 0.0
-        momentum:
-          value: 0.5
         seed:
           description: Preset number (or list of numbers) to set for pseudo-random number generators
           value: 42
