@@ -149,7 +149,7 @@ tracker experiment create tensorflow_cnn
 tracker experiment run EXECUTABLE_FILE:OPERATION_NAME parameters.seed.value=42 parameters.batch_size.value=42 [...]
 ```
 
-> **_BE ADVISED:_**  The above calls are not supported in the current version of Tracker! They will be released with the introduction of OmegaConf. The ECF for this example can be downloaded from [here](https://github.com/dti-research/tracker/blob/master/examples/fashion_mnist/experiment_file_example.yaml).
+> **_BE ADVISED:_**  The above calls are not supported in the current version of Tracker! They will be released with the introduction of OmegaConf. The ECF for this example can be downloaded from [here](https://github.com/dti-research/tracker/blob/master/examples/fashion_mnist/tensorflow_cnn.yaml).
 
 In the ECF, `tensorflow_cnn` could be any unique identifier for your experiment. Remember
 that you have to be at the root of the project when invoking this command. You
