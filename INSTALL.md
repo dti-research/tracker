@@ -37,3 +37,17 @@ After that install the pre-commit hooks
 ```bash
 pre-commit install
 ```
+
+# Installing NVIDIA Drivers
+
+```bash
+# Add PPA
+sudo add-apt-repository ppa:graphics-drivers
+sudo apt update
+
+# Install the driver that fits your GPU
+sudo apt install nvidia-driver-XXX
+
+# Verify installation after reboot
+nvidia-smi
+```
