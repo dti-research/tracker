@@ -52,7 +52,7 @@ beginning of this guide.
 In the `src/` folder of your new project you have folders specific to data
 processing, feature building, model training and visualisation, which is great
 for larger projects. Here we create a single training script in `src/`
-called `train.py` containing the following code (file [here](https://github.com/dti-research/tracker/blob/master/examples/fashion_mnist/train.py)):
+called `train.py` containing the following code (file [here](https://raw.githubusercontent.com/dti-research/tracker/master/examples/fashion_mnist/train.py)):
 
 ```python
 #!/usr/bin/python3
