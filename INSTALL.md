@@ -30,7 +30,8 @@ source ~/.bashrc
 Install developer dependencies
 
 ```bash
-pip install -r requirements-dev.txt
+cd tracker
+sudo -H pip3 install -r requirements-dev.txt
 ```
 After that install the pre-commit hooks
 
