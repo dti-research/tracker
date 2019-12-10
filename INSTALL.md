@@ -58,3 +58,6 @@ sudo apt install nvidia-driver-XXX
 # Verify installation after reboot
 nvidia-smi
 ```
+
+With the graphics card driver installed you must proceed to install NVIDIA docker: https://github.com/NVIDIA/nvidia-docker
+
