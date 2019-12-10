@@ -41,11 +41,11 @@ pre-commit install
 
 # Installing System Dependencies
 
-## Docker
+### Docker
 
 Refer to the official install guide: https://docs.docker.com/install/linux/docker-ce/ubuntu/
 
-## NVIDIA Drivers (Optional, required for GPU)
+### NVIDIA Drivers and NVIDIA Docker (Optional, required for GPU)
 
 ```bash
 # Add PPA
