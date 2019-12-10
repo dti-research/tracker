@@ -149,7 +149,7 @@ tracker experiment create tensorflow_cnn
 tracker experiment run EXECUTABLE_FILE:OPERATION_NAME parameters.seed.value=42 parameters.batch_size.value=42 [...]
 ```
 
-> **_BE ADVISED:_**  The above calls are not supported in the current version of Tracker! They will be released with the introduction of OmegaConf. The ECF for this example can be downloaded from [here](https://github.com/dti-research/tracker/blob/master/examples/fashion_mnist/tensorflow_cnn.yaml).
+> **_BE ADVISED:_**  The above calls are not supported in the current version of Tracker! They will be released with the introduction of OmegaConf. The ECF for this example can be downloaded from [here](https://github.com/dti-research/tracker/blob/master/examples/fashion_mnist/tensorflow_cnn.yaml). Save the file to the `experiments/` folder. Now modify your project `tracker.yaml` file to contain the path the name of the experiment and the corresponding ECF (`tensorflow_cnn: experiments/tensorflow_cnn.yaml`).
 
 In the ECF, `tensorflow_cnn` could be any unique identifier for your experiment. Remember
 that you have to be at the root of the project when invoking this command. You
@@ -160,39 +160,9 @@ The command will create an empty configuration file and prompt you for
 operation name (e.g. train, test, evaluate, etc.), script location, seed and
 parameter values (using the values found in the script as default values).
 Expiriment configuration files are by default placed in the `experiments`
-folder within your project.
+folder within your project. 
 
-The resulting experiment configuration file will look similar to:
 
-```yaml
-- experiment: tensorflow_cnn
-  description: Using Tracker to do good science!
-  operations:
-    train:
-      parameters:
-        batch-size:
-          value: 64
-        test-batch-size:
-          value: 1000
-        epochs:
-          value: 1
-        lr:
-          description: Learning rate
-          value: 0.01
-        lr_decay:
-          description: Learning rate decay
-          value: 0.0
-        momentum:
-          value: 0.5
-        seed:
-          description: Preset number (or list of numbers) to set for pseudo-random number generators
-          value: 42
-      environments:
-        - name: tf
-          type: docker
-          image: tensorflow/tensorflow:2.0.0-py3
-          executable: src/train.py
-```
 
 ## Running and Tracking Experiments
 
