@@ -10,13 +10,13 @@ We recommend that you either use virtualenv or Docker.
 
 ```bash
 # Install Tracker Dependencies
-apt update
-apt install git make python3-pip
+sudo apt update
+sudo apt install git make python3-pip
 
 # Install Tracker
 git clone https://github.com/dti-research/tracker
 cd tracker
-pip install -e .
+sudo -H pip3 install -e .
 
 # Enable bash autocompletion for Tracker on boot
 echo ""  >> ~/.bashrc
