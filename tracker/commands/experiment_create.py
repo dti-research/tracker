@@ -35,6 +35,8 @@ def create(ctx, args):
     """Creates a new experiment.
     """
 
+    raise NotImplementedError
+
     log.info("Creating '{}' experiment".format(args.name))
     if args.template_file is not None:
         log.info("   Using {} as a template".format(args.template_file))

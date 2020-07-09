@@ -6,6 +6,7 @@
 
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 
 import click
@@ -23,7 +24,7 @@ class SSHRemote(remotelib.Remote):
         self.name = name
         self._host = config["host"]
         self.port = config.get("port")
-        self.user = config.get("user")
+        self.user = config.get("user") or os.getlogin()
         self.private_key = config.get("private-key")
         self.connect_timeout = config.get("connect-timeout")
         self.tracker_home = self._init_tracker_home(config)
